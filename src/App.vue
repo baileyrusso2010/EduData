@@ -1,8 +1,24 @@
+<!-- src/components/NavDrawer.vue -->
+<template>
+  <v-app>
+    <NavDrawer />
+    <v-main>
+      <router-view></router-view>
+    </v-main>
+  </v-app>
+</template>
+
 <script setup lang="ts">
-import HelloWorld from './components/HelloWorld.vue'
-import TheWelcome from './components/TheWelcome.vue'
+import NavDrawer from './components/NavDrawer.vue'
 </script>
 
-<template>
-  <v-btn>working</v-btn>
-</template>
+<style>
+#app {
+  font-family: Avenir, Helvetica, Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-align: center;
+  color: #2c3e50;
+  margin-top: 60px;
+}
+</style>
