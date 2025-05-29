@@ -1,7 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import { components } from 'vuetify/dist/vuetify.js'
 import Printing from '../components/Printing.vue'
-import ProfilePage from '../components/ProfilePage.vue'
 import Behavior from '../components/Behavior.vue'
 import Test from '../components/Test.vue'
 import Attendance from '../components/Attendance.vue'
