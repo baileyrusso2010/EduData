@@ -49,6 +49,7 @@ const navItems = [
   // { title: 'Behavior', to: '/behavior', icon: 'mdi-account-group' },
   { title: 'Attendance', to: '/attendance', icon: 'mdi-account-group' },
   { title: 'Profile', to: '/profile', icon: 'mdi-account-group' },
+  { title: 'Upload', to: '/upload', icon: 'mdi-account-group' },
 ]
 
 // Logout function (placeholder)
