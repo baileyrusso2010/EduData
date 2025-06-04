@@ -1,82 +1,148 @@
 <template>
-  <div class="p-6 max-w-xl mx-auto">
-    <h2 class="text-xl font-bold mb-4">Upload Assessment File</h2>
+  <div class="p-4 space-y-4">
+    <input type="file" accept=".csv,.xlsx" @change="onFileChange" />
 
-    <input type="file" @change="handleFileUpload" accept=".csv" class="mb-4" />
+    <div v-if="rawHeaders.length">
+      <h2 class="text-xl font-semibold mt-4">Map Fields</h2>
 
-    <div v-if="columns.length" class="mb-4">
-      <h3 class="font-semibold mb-2">Map Columns</h3>
-      <div v-for="(col, index) in columns" :key="index" class="mb-2">
-        <label class="block mb-1">{{ col }}</label>
-        <select v-model="mapping[col]" class="border p-2 w-full">
-          <option value="">-- Ignore --</option>
-          <option v-for="field in internalFields" :key="field" :value="field">{{ field }}</option>
+      <div v-for="(field, index) in fieldsToMap" :key="index" class="mb-2">
+        <label class="mr-2">{{ field.label }}:</label>
+        <select v-model="field.binding" class="border p-1">
+          <option disabled value="">-- Select Column --</option>
+          <option v-for="col in rawHeaders" :key="col" :value="col">
+            {{ col }}
+          </option>
         </select>
       </div>
-      <v-btn @click="submitMappedData" class=""> Submit Mapped Data </v-btn>
-    </div>
 
-    <div>
-      <v-table v-if="fileData.length">
-        <thead>
-          <tr>
-            <th v-for="col in columns" :key="col">{{ col }}</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr v-for="(row, index) in fileData" :key="index">
-            <td v-for="col in columns" :key="col">{{ row[col] }}</td>
-          </tr>
-        </tbody>
-      </v-table>
+      <h2 class="text-lg mt-6 font-semibold">Detected Questions</h2>
+      <div v-if="detectedQuestions.length">
+        <div v-for="(q, index) in detectedQuestions" :key="index" class="border rounded p-2 mb-2">
+          <div>Group: q{{ q.qNum }}</div>
+          <div>Question: {{ q.questionField }}</div>
+          <div>Student Points: {{ q.studentPointsField }}</div>
+          <div>Max Points: {{ q.maxPointsField }}</div>
+        </div>
+      </div>
+
+      <button class="bg-blue-600 text-white px-4 py-2 rounded mt-4" @click="handleSubmit">
+        Submit Mapped Data
+      </button>
     </div>
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
+import * as XLSX from 'xlsx'
 import Papa from 'papaparse'
-import { ref, reactive } from 'vue'
+import { ref } from 'vue'
 import axios from 'axios'
 
-const fileData = ref([])
-const columns = ref([])
-const mapping = reactive({})
-const internalFields = ['studentName', 'subject', 'score']
+const rawHeaders = ref<string[]>([])
+const rawRows = ref<any[]>([])
 
-function handleFileUpload(event) {
-  const file = event.target.files[0]
+const fieldsToMap = ref([
+  { key: 'studentUid', label: 'Student UID', binding: '' },
+  { key: 'testName', label: 'Test Name', binding: '' },
+  { key: 'resPercent', label: 'Result Percent', binding: '' },
+])
+
+const detectedQuestions = ref<
+  {
+    qNum: string
+    questionField: string
+    studentPointsField: string
+    maxPointsField: string
+  }[]
+>([])
+
+function onFileChange(event: Event) {
+  const file = (event.target as HTMLInputElement).files?.[0]
   if (!file) return
 
-  Papa.parse(file, {
-    header: true,
-    skipEmptyLines: true,
-    complete(results) {
-      fileData.value = results.data
-      columns.value = results.meta.fields
-      columns.value.forEach((col) => {
-        mapping[col] = '' // default: not mapped
-      })
-    },
-  })
+  const reader = new FileReader()
+  reader.onload = (e) => {
+    const data = e.target?.result
+    const ext = file.name.split('.').pop()
+
+    if (ext === 'csv') {
+      const parsed = Papa.parse(data as string, { header: true })
+      rawRows.value = parsed.data
+      rawHeaders.value = Object.keys(parsed.data[0] || {})
+    } else {
+      const workbook = XLSX.read(data, { type: 'binary' })
+      const sheet = workbook.Sheets[workbook.SheetNames[0]]
+      const json = XLSX.utils.sheet_to_json(sheet)
+      rawRows.value = json as any[]
+      rawHeaders.value = Object.keys(json[0] || {})
+    }
+
+    detectQuestionGroups()
+  }
+
+  if (file.name.endsWith('.csv')) {
+    reader.readAsText(file)
+  } else {
+    reader.readAsBinaryString(file)
+  }
 }
 
-async function submitMappedData() {
-  const mapped = fileData.value.map((row) => {
-    const result = {}
-    for (const [csvCol, internalKey] of Object.entries(mapping)) {
-      if (internalKey) {
-        result[internalKey] = row[csvCol]
-      }
+function detectQuestionGroups() {
+  const questionMap: Record<
+    string,
+    {
+      questionField?: string
+      studentPointsField?: string
+      maxPointsField?: string
     }
-    return result
+  > = {}
+
+  rawHeaders.value.forEach((header) => {
+    const match = header.match(/^q(\d+)_(question|student points|max points)$/i)
+    if (match) {
+      const [_, qNum, type] = match
+      if (!questionMap[qNum]) questionMap[qNum] = {}
+      if (type.toLowerCase().includes('question')) questionMap[qNum].questionField = header
+      if (type.toLowerCase().includes('student')) questionMap[qNum].studentPointsField = header
+      if (type.toLowerCase().includes('max')) questionMap[qNum].maxPointsField = header
+    }
   })
 
-  try {
-    await axios.post('https://your-api-url.com/api/assessments/bulk', mapped)
-    alert('Uploaded successfully!')
-  } catch (err) {
-    console.error(err)
-    alert('Failed to upload data.')
-  }
+  detectedQuestions.value = Object.entries(questionMap)
+    .filter(
+      ([_, fields]) => fields.questionField && fields.studentPointsField && fields.maxPointsField,
+    )
+    .map(([qNum, fields]) => ({
+      qNum,
+      questionField: fields.questionField!,
+      studentPointsField: fields.studentPointsField!,
+      maxPointsField: fields.maxPointsField!,
+    }))
+}
+
+async function handleSubmit() {
+  const mappedData = rawRows.value.map((row) => {
+    const studentData: Record<string, any> = {}
+    fieldsToMap.value.forEach((f) => {
+      studentData[f.key] = row[f.binding]
+    })
+
+    const questions = detectedQuestions.value.map((q) => ({
+      text: row[q.questionField],
+      studentPoints: Number(row[q.studentPointsField]),
+      maxPoints: Number(row[q.maxPointsField]),
+    }))
+
+    return {
+      ...studentData,
+      questions,
+    }
+  })
+
+  let result = await axios.post('http://localhost:3000/assessments/upload', mappedData)
+
+  console.log(result)
+
+  // You can now POST mappedData to your Express route
 }
 </script>
