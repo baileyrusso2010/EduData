@@ -17,15 +17,15 @@
             </v-col>
           </v-row>
           <!-- Student Details -->
-          <v-card-title class="text-h5 text-center"
-            >{{ student.firstName }} {{ student.lastName }}</v-card-title
+          <v-card-title class="text-h5 text-center">{{ student.name }}</v-card-title>
+          <v-card-subtitle class="text-center"
+            >Student ID: {{ student.student_number }}</v-card-subtitle
           >
-          <v-card-subtitle class="text-center">Student ID: {{ student.studentId }}</v-card-subtitle>
           <v-card-text class="text-center">
             <p><strong>Grade:</strong> {{ student.grade }}</p>
-            <p><strong>School:</strong> {{ student.school }}</p>
-            <p><strong>DOB:</strong> {{ student.dob }}</p>
-            <p><strong>Guardian:</strong> {{ student.guardian }}</p>
+            <p><strong>School:</strong> {{ student?.school }}</p>
+            <p><strong>DOB:</strong> {{ student?.dob }}</p>
+            <p><strong>Guardian:</strong> {{ student?.guardian }}</p>
           </v-card-text>
         </v-card>
       </v-col>
@@ -49,7 +49,7 @@
             <v-card class="pa-4 mb-4" elevation="2">
               <v-card-title>Behavior Incidents</v-card-title>
               <v-card-text class="text-center">
-                <h1 class="display-1 text-warning">{{ behaviorIncidents }}</h1>
+                <h1 class="display-1 text-warning">{{ student.behavior?.length }}</h1>
                 <p>This Year (2025)</p>
               </v-card-text>
             </v-card>
@@ -60,7 +60,7 @@
             <v-card class="pa-4 mb-4" elevation="2">
               <v-card-title>504/IEP Status</v-card-title>
               <v-card-text class="text-center">
-                <h1 class="display-1 text-info">{{ iepStatus }}</h1>
+                <h1 class="display-1 text-info">{{ iepStatus || 'N/A' }}</h1>
                 <p>Current Plan Status</p>
               </v-card-text>
             </v-card>
@@ -73,22 +73,24 @@
 
 <script>
 import { defineComponent } from 'vue'
+import axios from 'axios'
 
 export default defineComponent({
   data() {
     return {
-      student: {
-        firstName: 'Emma',
-        lastName: 'Thompson',
-        studentId: 'ST12345',
-        grade: '5th',
-        school: 'Elementary School',
-        dob: '2015-03-15',
-        guardian: 'Sarah Thompson',
-      },
-      attendancePercentage: 92, // Fake percentage
-      behaviorIncidents: 3, // Fake number of incidents
-      iepStatus: 'IEP Active', // Fake status
+      student: {},
+      attendancePercentage: 0,
+      behaviorIncidents: 0,
+      iepStatus: '',
+    }
+  },
+  async created() {
+    try {
+      const response = await axios.get('http://localhost:3000/profile/098377') // Adjust API endpoint as needed
+      console.log(response.data)
+      this.student = response.data
+    } catch (error) {
+      console.error('Error fetching student data:', error)
     }
   },
 })

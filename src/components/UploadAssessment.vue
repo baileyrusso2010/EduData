@@ -139,7 +139,7 @@ async function handleSubmit() {
     }
   })
 
-  let result = await axios.post('http://localhost:3000/assessments/upload', mappedData)
+  const result = await axios.post('http://localhost:3000/assessments/upload', mappedData)
 
   console.log(result)
 
