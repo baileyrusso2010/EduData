@@ -18,9 +18,9 @@
           </v-row>
           <!-- Student Details -->
           <v-card-title class="text-h5 text-center">{{ student.name }}</v-card-title>
-          <v-card-subtitle class="text-center"
-            >Student ID: {{ student.student_number }}</v-card-subtitle
-          >
+          <v-card-subtitle class="text-center">
+            Student ID: {{ student.student_number }}
+          </v-card-subtitle>
           <v-card-text class="text-center">
             <p><strong>Grade:</strong> {{ student.grade }}</p>
             <p><strong>School:</strong> {{ student?.school }}</p>
@@ -33,7 +33,7 @@
       <!-- Main Area: Summary Cards -->
       <v-col cols="12" md="9" class="pa-4">
         <v-row>
-          <!-- Attendance Percentage Card -->
+          <!-- Attendance -->
           <v-col cols="12" sm="6" md="4">
             <v-card class="pa-4 mb-4" elevation="2">
               <v-card-title>Attendance Percentage</v-card-title>
@@ -44,18 +44,18 @@
             </v-card>
           </v-col>
 
-          <!-- Behavior Incidents Card -->
+          <!-- Behavior -->
           <v-col cols="12" sm="6" md="4">
             <v-card class="pa-4 mb-4" elevation="2">
               <v-card-title>Behavior Incidents</v-card-title>
               <v-card-text class="text-center">
-                <h1 class="display-1 text-warning">{{ student.behavior?.length }}</h1>
+                <h1 class="display-1 text-warning">{{ student.behavior?.length || 0 }}</h1>
                 <p>This Year (2025)</p>
               </v-card-text>
             </v-card>
           </v-col>
 
-          <!-- 504/IEP Status Card -->
+          <!-- IEP -->
           <v-col cols="12" sm="6" md="4">
             <v-card class="pa-4 mb-4" elevation="2">
               <v-card-title>504/IEP Status</v-card-title>
@@ -68,6 +68,78 @@
         </v-row>
       </v-col>
     </v-row>
+
+    <!-- Assessment Results -->
+    <v-row>
+      <v-col cols="12">
+        <v-card elevation="2" class="pa-4">
+          <v-card-title>Assessment Results</v-card-title>
+          <v-card-text>
+            <v-expansion-panels accordion>
+              <v-expansion-panel v-for="(a, i) in student.assessments" :key="i">
+                <v-expansion-panel-title>
+                  {{ a.assessmentName }} — Score: {{ a.score }}%
+                </v-expansion-panel-title>
+                <v-expansion-panel-text>
+                  <p><strong>Standardized:</strong> {{ a.standardized ? 'Yes' : 'No' }}</p>
+                  <v-table class="mt-2">
+                    <thead>
+                      <tr>
+                        <th>Question</th>
+                        <th>Max Points</th>
+                        <th>Earned Points</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr v-for="(q, j) in a.questions" :key="j">
+                        <td>{{ q.question }}</td>
+                        <td>{{ q.maxPoints }}</td>
+                        <td>{{ q.earnedPoints }}</td>
+                      </tr>
+                    </tbody>
+                  </v-table>
+                </v-expansion-panel-text>
+              </v-expansion-panel>
+            </v-expansion-panels>
+          </v-card-text>
+        </v-card>
+      </v-col>
+    </v-row>
+
+    <!-- Gradebook Section -->
+    <v-row>
+      <v-col cols="12">
+        <v-card elevation="2" class="pa-4">
+          <v-card-title>Gradebook</v-card-title>
+          <v-card-text>
+            <v-row v-for="(course, i) in gradebook" :key="i" class="mb-6">
+              <v-col cols="12">
+                <v-card outlined>
+                  <v-card-title class="text-h6">{{ course.course_name }}</v-card-title>
+                  <v-card-text>
+                    <v-row>
+                      <v-col
+                        cols="12"
+                        sm="6"
+                        md="3"
+                        v-for="(quarter, qIndex) in course.quarters"
+                        :key="qIndex"
+                      >
+                        <v-card flat class="bg-grey-lighten-4 pa-2">
+                          <div class="text-subtitle-1 font-weight-medium">Q{{ qIndex + 1 }}</div>
+                          <div>Interim: {{ quarter.interim }}</div>
+                          <div>Final: {{ quarter.final }}</div>
+                        </v-card>
+                      </v-col>
+                    </v-row>
+                  </v-card-text>
+                </v-card>
+              </v-col>
+            </v-row>
+          </v-card-text>
+        </v-card>
+      </v-col>
+    </v-row>
   </v-container>
 </template>
 
@@ -78,17 +150,83 @@ import axios from 'axios'
 export default defineComponent({
   data() {
     return {
-      student: {},
+      student: {
+        assessments: [],
+        behavior: [],
+      },
       attendancePercentage: 0,
       behaviorIncidents: 0,
       iepStatus: '',
+      gradebook: [
+        {
+          course_name: 'Mathematics',
+          quarters: [
+            { interim: '88%', final: '92%' },
+            { interim: '85%', final: '87%' },
+            { interim: '90%', final: '93%' },
+            { interim: '91%', final: '94%' },
+          ],
+        },
+        {
+          course_name: 'English',
+          quarters: [
+            { interim: '82%', final: '85%' },
+            { interim: '84%', final: '86%' },
+            { interim: '87%', final: '89%' },
+            { interim: '88%', final: '90%' },
+          ],
+        },
+        {
+          course_name: 'Science',
+          quarters: [
+            { interim: '90%', final: '93%' },
+            { interim: '89%', final: '91%' },
+            { interim: '92%', final: '94%' },
+            { interim: '93%', final: '95%' },
+          ],
+        },
+      ],
+      fakeGrades: [
+        {
+          subject: 'Math',
+          q1: 'A-',
+          q2: 'B+',
+          q3: 'A',
+          q4: 'A',
+          final: 'A',
+        },
+        {
+          subject: 'English',
+          q1: 'B',
+          q2: 'B',
+          q3: 'B+',
+          q4: 'A-',
+          final: 'B+',
+        },
+        {
+          subject: 'Science',
+          q1: 'A',
+          q2: 'A-',
+          q3: 'A',
+          q4: 'A',
+          final: 'A',
+        },
+        {
+          subject: 'History',
+          q1: 'B+',
+          q2: 'A',
+          q3: 'A-',
+          q4: 'B+',
+          final: 'A-',
+        },
+      ],
     }
   },
   async created() {
     try {
-      const response = await axios.get('http://localhost:3000/profile/098377') // Adjust API endpoint as needed
-      console.log(response.data)
+      const response = await axios.get('http://localhost:3000/profile/098377') // adjust as needed
       this.student = response.data
+      this.iepStatus = response.data?.iepStatus || ''
     } catch (error) {
       console.error('Error fetching student data:', error)
     }
@@ -106,7 +244,7 @@ export default defineComponent({
 }
 .text-h5 {
   font-weight: 600;
-  color: #2e7d32; /* Green for consistency */
+  color: #2e7d32;
 }
 .text-center {
   text-align: center;
@@ -116,13 +254,13 @@ export default defineComponent({
   font-weight: bold;
 }
 .text-success {
-  color: #2e7d32; /* Green for attendance */
+  color: #2e7d32;
 }
 .text-warning {
-  color: #f57c00; /* Orange for behavior */
+  color: #f57c00;
 }
 .text-info {
-  color: #1976d2; /* Blue for IEP */
+  color: #1976d2;
 }
 .rounded-circle {
   border-radius: 50% !important;
