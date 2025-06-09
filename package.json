@@ -13,6 +13,7 @@
     "format": "prettier --write src/"
   },
   "dependencies": {
+    "@types/papaparse": "^5.3.16",
     "axios": "^1.9.0",
     "chart.js": "^4.4.9",
     "fibers": "^5.0.3",
