@@ -8,6 +8,7 @@ import Profile from '../components/Profile.vue'
 import HomePage from '../components/HomePage.vue'
 import PageNotFound from '../components/PageNotFound.vue'
 import UploadAssessment from '../components/UploadAssessment.vue'
+import StudentSearch from '../components/StudentSearch.vue'
 
 const routes = [
   {
@@ -27,12 +28,18 @@ const routes = [
     component: Attendance,
   },
   {
-    path: '/profile',
+    path: '/profile/:id',
+    name: 'profile',
     component: Profile,
+    props: true,
   },
   {
     path: '/upload',
     component: UploadAssessment,
+  },
+  {
+    path: '/student_search',
+    component: StudentSearch,
   },
   {
     path: '/:pathMatch(.*)*',

@@ -1,4 +1,6 @@
 <template>
+
+<div v-if="!loading">
   <v-container fluid>
     <v-row>
       <!-- Left Sidebar: Profile Details -->
@@ -69,6 +71,51 @@
       </v-col>
     </v-row>
 
+
+    <!-- Gradebook Section -->
+    <v-row>
+  <v-col cols="12">
+    <v-card elevation="2" class="pa-4">
+      <v-card-title>Gradebook</v-card-title>
+      <v-card-text>
+        <v-row v-for="(course, i) in gradebook" :key="i" class="mb-6">
+          <v-col cols="12">
+            <v-card outlined>
+              <v-card-title class="text-h6">{{ course.course_name }}</v-card-title>
+              <v-card-text>
+                <v-row>
+                  <v-col
+                    cols="12"
+                    sm="6"
+                    md="3"
+                    v-for="(quarter, qIndex) in course.quarters"
+                    :key="qIndex"
+                  >
+                    <v-card flat class="pa-2" :class="gradeColorClass(quarter.final)">
+                      <div class="text-subtitle-1 font-weight-medium">Q{{ qIndex + 1 }}</div>
+                      <div>Interim: 
+                        <span :class="gradeTextColorClass(quarter.interim)">
+                          {{ quarter.interim }}
+                        </span>
+                      </div>
+                      <div>Final: 
+                        <span :class="gradeTextColorClass(quarter.final)">
+                          {{ quarter.final }}
+                        </span>
+                      </div>
+                    </v-card>
+                  </v-col>
+                </v-row>
+              </v-card-text>
+            </v-card>
+          </v-col>
+        </v-row>
+      </v-card-text>
+    </v-card>
+  </v-col>
+</v-row>
+
+
     <!-- Assessment Results -->
     <v-row>
       <v-col cols="12">
@@ -106,41 +153,19 @@
       </v-col>
     </v-row>
 
-    <!-- Gradebook Section -->
-    <v-row>
-      <v-col cols="12">
-        <v-card elevation="2" class="pa-4">
-          <v-card-title>Gradebook</v-card-title>
-          <v-card-text>
-            <v-row v-for="(course, i) in gradebook" :key="i" class="mb-6">
-              <v-col cols="12">
-                <v-card outlined>
-                  <v-card-title class="text-h6">{{ course.course_name }}</v-card-title>
-                  <v-card-text>
-                    <v-row>
-                      <v-col
-                        cols="12"
-                        sm="6"
-                        md="3"
-                        v-for="(quarter, qIndex) in course.quarters"
-                        :key="qIndex"
-                      >
-                        <v-card flat class="bg-grey-lighten-4 pa-2">
-                          <div class="text-subtitle-1 font-weight-medium">Q{{ qIndex + 1 }}</div>
-                          <div>Interim: {{ quarter.interim }}</div>
-                          <div>Final: {{ quarter.final }}</div>
-                        </v-card>
-                      </v-col>
-                    </v-row>
-                  </v-card-text>
-                </v-card>
-              </v-col>
-            </v-row>
-          </v-card-text>
-        </v-card>
-      </v-col>
-    </v-row>
   </v-container>
+  </div>  
+  <div v-else>
+    <v-container class="text-center">
+      <v-row>
+        <v-col cols="12">
+          <v-alert type="info" class="mt-5">
+            Loading student profile data...
+          </v-alert>
+        </v-col>
+      </v-row>
+    </v-container>
+    </div>  
 </template>
 
 <script>
@@ -154,6 +179,7 @@ export default defineComponent({
         assessments: [],
         behavior: [],
       },
+      loading: false,
       attendancePercentage: 0,
       behaviorIncidents: 0,
       iepStatus: '',
@@ -222,16 +248,39 @@ export default defineComponent({
       ],
     }
   },
-  async created() {
-    try {
-      const response = await axios.get('http://localhost:3000/profile/098377') // adjust as needed
-      this.student = response.data
-      this.iepStatus = response.data?.iepStatus || ''
-    } catch (error) {
-      console.error('Error fetching student data:', error)
+    methods: {
+  gradeColorClass(grade) {
+    if (typeof grade === 'string') {
+      grade = parseInt(grade.replace('%', ''), 10);
     }
+    if (grade >= 90) return 'bg-green-lighten-4'
+    if (grade >= 80) return 'bg-blue-lighten-4'
+    if (grade >= 70) return 'bg-amber-lighten-4'
+    return 'bg-red-lighten-4'
   },
-})
+  gradeTextColorClass(grade) {
+    if (grade >= 90) return 'text-green-darken-2'
+    if (grade >= 80) return 'text-blue-darken-2'
+    if (grade >= 70) return 'text-amber-darken-2'
+    return 'text-red-darken-2'
+  }
+  },
+  async mounted() {
+    const studentId = this.$route.params.id;
+
+    this.loading = true;
+    try {
+      const response = await axios.get(`http://localhost:3000/profile/${studentId}`); // adjust as needed
+      this.student = response.data;
+      this.iepStatus = response.data?.iepStatus || '';
+    } catch (error) {
+      console.error('Error fetching student data:', error);
+    } finally {
+      this.loading = false;
+    }
+  }
+}
+)
 </script>
 
 <style scoped>

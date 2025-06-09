@@ -45,11 +45,12 @@ const drawer = ref(true)
 // Navigation items
 const navItems = [
   { title: 'Home', to: '/', icon: 'mdi-home' },
-  { title: 'Test', to: '/test', icon: 'mdi-filter' },
+  // { title: 'Test', to: '/test', icon: 'mdi-filter' },
   // { title: 'Behavior', to: '/behavior', icon: 'mdi-account-group' },
   { title: 'Attendance', to: '/attendance', icon: 'mdi-account-group' },
-  { title: 'Profile', to: '/profile', icon: 'mdi-account-group' },
+  // { title: 'Profile', to: '/profile', icon: 'mdi-account-group' },
   { title: 'Upload', to: '/upload', icon: 'mdi-account-group' },
+  { title: 'Search', to: '/student_search', icon: 'mdi-account-group' },
 ]
 
 // Logout function (placeholder)
