@@ -60,6 +60,7 @@ const logout = () => {
 }
 </script>
 
+
 <style scoped>
 .title-text {
   font-size: 1.5rem;

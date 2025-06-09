@@ -65,7 +65,7 @@
       search: {
         async handler(newSearch) {
           try {
-            const url = `http://localhost:3000/student/search?search=${newSearch}`;
+            const url = `https://api.chalkrecords.com/student/search?search=${newSearch}`;
             const response = await axios.get(url);
             this.students = response.data;
           } catch (error) {

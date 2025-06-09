@@ -270,7 +270,7 @@ export default defineComponent({
 
     this.loading = true;
     try {
-      const response = await axios.get(`http://localhost:3000/profile/${studentId}`); // adjust as needed
+      const response = await axios.get(`https://api.chalkrecords.com/profile/${studentId}`); // adjust as needed
       this.student = response.data;
       this.iepStatus = response.data?.iepStatus || '';
     } catch (error) {
