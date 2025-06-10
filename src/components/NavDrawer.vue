@@ -51,6 +51,7 @@ const navItems = [
   // { title: 'Profile', to: '/profile', icon: 'mdi-account-group' },
   { title: 'Upload', to: '/upload', icon: 'mdi-account-group' },
   { title: 'Search', to: '/student_search', icon: 'mdi-account-group' },
+  { title: 'Class Finder', to: '/ClassFinder', icon: 'mdi-account-group' },
 ]
 
 // Logout function (placeholder)
@@ -59,7 +60,6 @@ const logout = () => {
   // Implement logout logic here (e.g., clear auth token, redirect to login)
 }
 </script>
-
 
 <style scoped>
 .title-text {

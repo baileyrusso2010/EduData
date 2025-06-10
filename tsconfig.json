@@ -15,6 +15,6 @@
     },
     "types": ["node", "vue"]
   },
-  "include": ["src/**/*", "src/**/*.vue", "vue-shim.d.ts"],
+  "include": ["src/**/*", "src/**/*.vue", "vue-shim.d.ts", "env.d.ts"],
   "exclude": ["node_modules"]
 }

@@ -1,23 +1,18 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import { components } from 'vuetify/dist/vuetify.js'
-import Printing from '../components/Printing.vue'
-import Behavior from '../components/Behavior.vue'
-import Test from '../components/Test.vue'
-import Attendance from '../components/Attendance.vue'
-import Profile from '../components/Profile.vue'
-import HomePage from '../components/HomePage.vue'
-import PageNotFound from '../components/PageNotFound.vue'
-import UploadAssessment from '../components/UploadAssessment.vue'
-import StudentSearch from '../components/StudentSearch.vue'
+import Behavior from '../views/Behavior.vue'
+import Attendance from '../views/Attendance.vue'
+import Profile from '../views/Profile.vue'
+import HomePage from '../views/HomePage.vue'
+import PageNotFound from '../views/PageNotFound.vue'
+import UploadAssessment from '../views/UploadAssessment.vue'
+import StudentSearch from '../views/StudentSearch.vue'
+import ClassFinder from '../views/ClassFinder.vue'
 
 const routes = [
   {
     path: '/',
     component: HomePage,
-  },
-  {
-    path: '/test',
-    component: Test,
   },
   {
     path: '/behavior',
@@ -40,6 +35,10 @@ const routes = [
   {
     path: '/student_search',
     component: StudentSearch,
+  },
+  {
+    path: '/ClassFinder',
+    component: ClassFinder,
   },
   {
     path: '/:pathMatch(.*)*',
