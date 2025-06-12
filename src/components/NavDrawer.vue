@@ -52,6 +52,7 @@ const navItems = [
   { title: 'Upload', to: '/upload', icon: 'mdi-account-group' },
   { title: 'Search', to: '/student_search', icon: 'mdi-account-group' },
   { title: 'Class Finder', to: '/ClassFinder', icon: 'mdi-account-group' },
+  { title: 'Breakdown', to: '/breakdown', icon: 'mdi-account-group' },
 ]
 
 // Logout function (placeholder)

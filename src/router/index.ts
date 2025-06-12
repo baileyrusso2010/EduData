@@ -8,6 +8,7 @@ import PageNotFound from '../views/PageNotFound.vue'
 import UploadAssessment from '../views/UploadAssessment.vue'
 import StudentSearch from '../views/StudentSearch.vue'
 import ClassFinder from '../views/ClassFinder.vue'
+import Breakdown from '../views/Breakdown.vue'
 
 const routes = [
   {
@@ -39,6 +40,10 @@ const routes = [
   {
     path: '/ClassFinder',
     component: ClassFinder,
+  },
+  {
+    path: '/breakdown',
+    component: Breakdown,
   },
   {
     path: '/:pathMatch(.*)*',
