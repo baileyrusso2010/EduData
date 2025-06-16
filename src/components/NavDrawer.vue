@@ -8,8 +8,9 @@
       <v-sheet color="primary" class="pa-4">
         <v-row align="center">
           <v-col>
-            <h2 class="white--text">EduData</h2>
+            <h2 class="white--text">Chalk Records</h2>
             <p class="caption white--text mb-0">Staff Dashboard</p>
+            <p class="caption white--text mb-0">{{ packageVersion }}</p>
           </v-col>
         </v-row>
       </v-sheet>
@@ -38,7 +39,9 @@
 
 <script setup>
 import { ref } from 'vue'
+import packageJson from '../../package.json'
 
+let packageVersion = packageJson.version
 // Drawer state
 const drawer = ref(true)
 
@@ -53,6 +56,7 @@ const navItems = [
   { title: 'Search', to: '/student_search', icon: 'mdi-account-group' },
   { title: 'Class Finder', to: '/ClassFinder', icon: 'mdi-account-group' },
   { title: 'Breakdown', to: '/breakdown', icon: 'mdi-account-group' },
+  { title: 'Class View', to: '/ClassView', icon: 'mdi-account-group' },
 ]
 
 // Logout function (placeholder)

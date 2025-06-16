@@ -167,9 +167,11 @@ import {
   LinearScale,
 } from 'chart.js'
 import { Bar } from 'vue-chartjs'
-import ChartRough from 'chartjs-plugin-rough'
 
-ChartJS.register(ChartRough)
+//come back to this
+// import roughPlugin from 'chartjs-plugin-rough'
+
+// Chart.plugins.register(ChartRough)
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend)
 
 const filters = ref({
