@@ -10,6 +10,7 @@ import StudentSearch from '../views/StudentSearch.vue'
 import ClassFinder from '../views/ClassFinder.vue'
 import Breakdown from '../views/Breakdown.vue'
 import ClassView from '../views/ClassView.vue'
+import CreateAssessment from '../views/CreateAssessment.vue'
 
 const routes = [
   {
@@ -49,6 +50,10 @@ const routes = [
   {
     path: '/classview',
     component: ClassView,
+  },
+  {
+    path: '/createAssessment',
+    component: CreateAssessment,
   },
   {
     path: '/:pathMatch(.*)*',

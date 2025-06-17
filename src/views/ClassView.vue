@@ -55,47 +55,6 @@
         </v-card>
       </v-col>
     </v-row>
-    <!-- Row 1: Student Demographics -->
-    <v-row>
-      <v-col cols="12" class="text-center mb-6">
-        <h2 class="text-h5 font-weight-bold">Student Demographics</h2>
-      </v-col>
-    </v-row>
-
-    <v-row dense>
-      <v-col v-for="(card, index) in demographics" :key="index" cols="12" sm="6" md="3">
-        <v-card elevation="4" class="pa-4 rounded-xl text-center">
-          <v-card-title class="justify-center text-h6 font-weight-medium">
-            {{ card.title }}
-          </v-card-title>
-          <v-card-text>
-            <div class="text-h4 font-weight-bold">{{ card.count }}</div>
-            <div class="text-subtitle-1 text-grey-darken-1">{{ card.percentage }}%</div>
-          </v-card-text>
-        </v-card>
-      </v-col>
-    </v-row>
-
-    <!-- Row 2: Endorsements -->
-    <v-row class="mt-10">
-      <v-col cols="12" class="text-center mb-6">
-        <h2 class="text-h5 font-weight-bold">Student Endorsements</h2>
-      </v-col>
-    </v-row>
-
-    <v-row dense>
-      <v-col v-for="(card, index) in endorsements" :key="index" cols="12" sm="6" md="3">
-        <v-card elevation="2" class="pa-4 rounded-xl text-center bg-grey-lighten-4">
-          <v-card-title class="justify-center text-h6 font-weight-medium">
-            {{ card.title }}
-          </v-card-title>
-          <v-card-text>
-            <div class="text-h4 font-weight-bold">{{ card.count }}</div>
-            <div class="text-subtitle-2 text-grey-darken-1">{{ card.percentage }}%</div>
-          </v-card-text>
-        </v-card>
-      </v-col>
-    </v-row>
 
     <!-- Section Title -->
     <v-row>

@@ -1,91 +1,162 @@
-<!-- src/components/NavDrawer.vue -->
 <template>
-  <div>
-    <!-- App Bar -->
-    <!-- Navigation Drawer -->
-    <v-navigation-drawer v-model="drawer" app :temporary="$vuetify.display.smAndDown">
-      <!-- Drawer Header -->
-      <v-sheet color="primary" class="pa-4">
-        <v-row align="center">
-          <v-col>
-            <h2 class="white--text">Chalk Records</h2>
-            <p class="caption white--text mb-0">Staff Dashboard</p>
-            <p class="caption white--text mb-0">{{ packageVersion }}</p>
-          </v-col>
-        </v-row>
-      </v-sheet>
+  <v-navigation-drawer
+    v-model="drawer"
+    app
+    :temporary="$vuetify.display.smAndDown"
+    width="280"
+    class="elevation-2"
+  >
+    <!-- Drawer Header -->
+    <v-sheet color="primary" class="pa-4">
+      <v-row align="center" no-gutters>
+        <v-col>
+          <h2 class="text-h6 font-weight-bold white--text">Chalk Records</h2>
+          <p class="text-caption white--text mb-1">Staff Dashboard</p>
+          <p class="text-caption white--text mb-0">v{{ packageVersion }}</p>
+        </v-col>
+        <v-col cols="auto" v-if="$vuetify.display.smAndDown">
+          <v-btn icon small @click="drawer = !drawer" class="white--text">
+            <v-icon>mdi-close</v-icon>
+          </v-btn>
+        </v-col>
+      </v-row>
+    </v-sheet>
 
-      <!-- Navigation List -->
-      <v-list dense nav>
+    <!-- Navigation List with Collapsible Groups -->
+    <v-list dense nav class="py-0">
+      <!-- General Group -->
+      <v-list-group v-model="generalExpanded" color="primary">
+        <template v-slot:activator="{ props }">
+          <v-list-item v-bind="props" class="group-header">
+            <v-list-item-icon class="mr-3">
+              <v-icon size="20">mdi-cog</v-icon>
+            </v-list-item-icon>
+            <v-list-item-title class="text-subtitle-2">General</v-list-item-title>
+          </v-list-item>
+        </template>
         <v-list-item
-          v-for="item in navItems"
+          v-for="item in generalItems"
           :key="item.title"
           :to="item.to"
           link
-          class="nav-item"
+          class="pl-8 nav-item"
           active-class="active-nav-item"
         >
-          <v-list-item-icon>
-            <v-icon>{{ item.icon }}</v-icon>
+          <v-list-item-icon class="mr-3">
+            <v-icon size="20">{{ item.icon }}</v-icon>
           </v-list-item-icon>
           <v-list-item-content>
-            <v-list-item-title>{{ item.title }}</v-list-item-title>
+            <v-list-item-title class="text-body-2">{{ item.title }}</v-list-item-title>
           </v-list-item-content>
         </v-list-item>
-      </v-list>
-    </v-navigation-drawer>
-  </div>
+      </v-list-group>
+
+      <!-- Student Management Group -->
+      <v-list-group v-model="studentExpanded" color="primary">
+        <template v-slot:activator="{ props }">
+          <v-list-item v-bind="props" class="group-header">
+            <v-list-item-icon class="mr-3">
+              <v-icon size="20">mdi-school</v-icon>
+            </v-list-item-icon>
+            <v-list-item-title class="text-subtitle-2">Student Management</v-list-item-title>
+          </v-list-item>
+        </template>
+        <v-list-item
+          v-for="item in studentItems"
+          :key="item.title"
+          :to="item.to"
+          link
+          class="pl-8 nav-item"
+          active-class="active-nav-item"
+        >
+          <v-list-item-icon class="mr-3">
+            <v-icon size="20">{{ item.icon }}</v-icon>
+          </v-list-item-icon>
+          <v-list-item-content>
+            <v-list-item-title class="text-body-2">{{ item.title }}</v-list-item-title>
+          </v-list-item-content>
+        </v-list-item>
+      </v-list-group>
+
+      <!-- Logout Button -->
+      <!-- <v-list-item @click="logout" class="mt-2 nav-item">
+        <v-list-item-icon class="mr-3">
+          <v-icon size="20">mdi-logout</v-icon>
+        </v-list-item-icon>
+        <v-list-item-content>
+          <v-list-item-title class="text-body-2">Logout</v-list-item-title>
+        </v-list-item-content>
+      </v-list-item> -->
+    </v-list>
+  </v-navigation-drawer>
 </template>
 
 <script setup>
 import { ref } from 'vue'
 import packageJson from '../../package.json'
 
-let packageVersion = packageJson.version
-// Drawer state
+const packageVersion = packageJson.version
 const drawer = ref(true)
+const generalExpanded = ref(true) // Controls General group collapse state
+const studentExpanded = ref(true) // Controls Student Management group collapse state
 
-// Navigation items
-const navItems = [
+// Organized navigation items into groups
+const generalItems = [
   { title: 'Home', to: '/', icon: 'mdi-home' },
-  // { title: 'Test', to: '/test', icon: 'mdi-filter' },
-  // { title: 'Behavior', to: '/behavior', icon: 'mdi-account-group' },
-  { title: 'Attendance', to: '/attendance', icon: 'mdi-account-group' },
-  // { title: 'Profile', to: '/profile', icon: 'mdi-account-group' },
-  { title: 'Upload', to: '/upload', icon: 'mdi-account-group' },
-  { title: 'Search', to: '/student_search', icon: 'mdi-account-group' },
-  { title: 'Class Finder', to: '/ClassFinder', icon: 'mdi-account-group' },
-  { title: 'Breakdown', to: '/breakdown', icon: 'mdi-account-group' },
-  { title: 'Class View', to: '/ClassView', icon: 'mdi-account-group' },
+  { title: 'Search', to: '/student_search', icon: 'mdi-magnify' },
+  { title: 'Class Finder', to: '/ClassFinder', icon: 'mdi-school' },
 ]
 
-// Logout function (placeholder)
+const studentItems = [
+  { title: 'Attendance', to: '/attendance', icon: 'mdi-account-check' },
+  { title: 'Breakdown', to: '/breakdown', icon: 'mdi-chart-bar' },
+  { title: 'Class View', to: '/ClassView', icon: 'mdi-view-list' },
+  { title: 'Create Assessment', to: '/createAssessment', icon: 'mdi-file-document-edit' },
+  { title: 'Upload', to: '/upload', icon: 'mdi-upload' },
+]
+
 const logout = () => {
   console.log('Logout clicked')
-  // Implement logout logic here (e.g., clear auth token, redirect to login)
+  // Implement logout logic here
 }
 </script>
 
 <style scoped>
-.title-text {
-  font-size: 1.5rem;
-  font-weight: 500;
-}
-
 .nav-item {
-  transition: background-color 0.3s;
+  transition: all 0.2s ease-in-out;
+  border-left: 3px solid transparent;
 }
 
 .nav-item:hover {
-  background-color: rgba(0, 0, 0, 0.1);
+  background-color: rgba(0, 0, 0, 0.05);
+  border-left-color: var(--v-primary-base);
 }
 
 .active-nav-item {
-  background-color: rgba(0, 0, 0, 0.2);
+  background-color: rgba(0, 0, 0, 0.08);
+  border-left-color: var(--v-primary-base);
   color: var(--v-primary-base) !important;
 }
 
-.caption {
-  font-size: 0.75rem;
+.group-header {
+  background-color: rgba(0, 0, 0, 0.03);
+  border-left: 3px solid transparent;
+  transition: all 0.2s ease-in-out;
+}
+
+.group-header:hover {
+  background-color: rgba(0, 0, 0, 0.05);
+}
+
+.v-list-item-title {
+  font-weight: 500;
+}
+
+.v-navigation-drawer {
+  border-right: 1px solid rgba(0, 0, 0, 0.12);
+}
+
+.v-list-group--active .group-header {
+  background-color: rgba(0, 0, 0, 0.08);
 }
 </style>
