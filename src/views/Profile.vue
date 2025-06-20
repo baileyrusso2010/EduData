@@ -1,171 +1,165 @@
 <template>
+  <div v-if="!loading">
+    <v-container fluid>
+      <v-row>
+        <!-- Left Sidebar -->
+        <v-col cols="12" md="3" class="pa-4">
+          <v-card class="pa-4 h-100" elevation="4">
+            <v-row justify="center">
+              <v-col cols="12" class="text-center">
+                <v-avatar size="150">
+                  <v-img
+                    src="https://via.placeholder.com/150"
+                    alt="Student Avatar"
+                    class="rounded-circle"
+                  />
+                </v-avatar>
+              </v-col>
+            </v-row>
+            <v-card-title class="text-h5 text-center"> {{ student.name }}</v-card-title>
+            <v-card-subtitle class="text-center"
+              >Student ID: {{ student.student_number }}</v-card-subtitle
+            >
+            <v-card-text class="text-center">
+              <p><strong>Grade:</strong> {{ student.grade }}</p>
+              <p><strong>School:</strong> {{ student.school }}</p>
+              <p><strong>DOB:</strong> {{ student.dob }}</p>
+              <p><strong>Guardian:</strong> {{ student.guardian }}</p>
+            </v-card-text>
+          </v-card>
+        </v-col>
 
-<div v-if="!loading">
-  <v-container fluid>
-    <v-row>
-      <!-- Left Sidebar: Profile Details -->
-      <v-col cols="12" md="3" class="pa-4">
-        <v-card class="pa-4 h-100" elevation="4">
-          <!-- Avatar -->
-          <v-row justify="center">
-            <v-col cols="12" class="text-center">
-              <v-avatar size="150">
-                <v-img
-                  src="https://via.placeholder.com/150"
-                  alt="Student Avatar"
-                  class="rounded-circle"
-                />
-              </v-avatar>
+        <!-- Main Area -->
+        <v-col cols="12" md="9" class="pa-4">
+          <v-row>
+            <v-col cols="12" sm="6" md="4">
+              <v-card class="pa-4 mb-4" elevation="2">
+                <v-card-title>Attendance Percentage</v-card-title>
+                <v-card-text class="text-center">
+                  <h1 class="display-1 text-success">{{ attendancePercentage }}%</h1>
+                  <p>Year-to-Date</p>
+                </v-card-text>
+              </v-card>
+            </v-col>
+
+            <v-col cols="12" sm="6" md="4">
+              <v-card class="pa-4 mb-4" elevation="2">
+                <v-card-title>Behavior Incidents</v-card-title>
+                <v-card-text class="text-center">
+                  <h1 class="display-1 text-warning">{{ student.behavior?.length || 0 }}</h1>
+                  <p>This Year</p>
+                </v-card-text>
+              </v-card>
+            </v-col>
+
+            <v-col cols="12" sm="6" md="4">
+              <v-card class="pa-4 mb-4" elevation="2">
+                <v-card-title>504/IEP Status</v-card-title>
+                <v-card-text class="text-center">
+                  <h1 class="display-1 text-info">{{ iepStatus || 'N/A' }}</h1>
+                  <p>Current Plan Status</p>
+                </v-card-text>
+              </v-card>
             </v-col>
           </v-row>
-          <!-- Student Details -->
-          <v-card-title class="text-h5 text-center">{{ student.name }}</v-card-title>
-          <v-card-subtitle class="text-center">
-            Student ID: {{ student.student_number }}
-          </v-card-subtitle>
-          <v-card-text class="text-center">
-            <p><strong>Grade:</strong> {{ student.grade }}</p>
-            <p><strong>School:</strong> {{ student?.school }}</p>
-            <p><strong>DOB:</strong> {{ student?.dob }}</p>
-            <p><strong>Guardian:</strong> {{ student?.guardian }}</p>
-          </v-card-text>
-        </v-card>
-      </v-col>
 
-      <!-- Main Area: Summary Cards -->
-      <v-col cols="12" md="9" class="pa-4">
-        <v-row>
-          <!-- Attendance -->
-          <v-col cols="12" sm="6" md="4">
-            <v-card class="pa-4 mb-4" elevation="2">
-              <v-card-title>Attendance Percentage</v-card-title>
-              <v-card-text class="text-center">
-                <h1 class="display-1 text-success">{{ attendancePercentage }}%</h1>
-                <p>Year-to-Date (as of May 28, 2025)</p>
-              </v-card-text>
-            </v-card>
-          </v-col>
-
-          <!-- Behavior -->
-          <v-col cols="12" sm="6" md="4">
-            <v-card class="pa-4 mb-4" elevation="2">
-              <v-card-title>Behavior Incidents</v-card-title>
-              <v-card-text class="text-center">
-                <h1 class="display-1 text-warning">{{ student.behavior?.length || 0 }}</h1>
-                <p>This Year (2025)</p>
-              </v-card-text>
-            </v-card>
-          </v-col>
-
-          <!-- IEP -->
-          <v-col cols="12" sm="6" md="4">
-            <v-card class="pa-4 mb-4" elevation="2">
-              <v-card-title>504/IEP Status</v-card-title>
-              <v-card-text class="text-center">
-                <h1 class="display-1 text-info">{{ iepStatus || 'N/A' }}</h1>
-                <p>Current Plan Status</p>
-              </v-card-text>
-            </v-card>
-          </v-col>
-        </v-row>
-      </v-col>
-    </v-row>
-
-
-    <!-- Gradebook Section -->
-    <v-row>
-  <v-col cols="12">
-    <v-card elevation="2" class="pa-4">
-      <v-card-title>Gradebook</v-card-title>
-      <v-card-text>
-        <v-row v-for="(course, i) in gradebook" :key="i" class="mb-6">
-          <v-col cols="12">
-            <v-card outlined>
-              <v-card-title class="text-h6">{{ course.course_name }}</v-card-title>
-              <v-card-text>
-                <v-row>
-                  <v-col
-                    cols="12"
-                    sm="6"
-                    md="3"
-                    v-for="(quarter, qIndex) in course.quarters"
-                    :key="qIndex"
-                  >
-                    <v-card flat class="pa-2" :class="gradeColorClass(quarter.final)">
-                      <div class="text-subtitle-1 font-weight-medium">Q{{ qIndex + 1 }}</div>
-                      <div>Interim: 
-                        <span :class="gradeTextColorClass(quarter.interim)">
-                          {{ quarter.interim }}
-                        </span>
+          <!-- MTSS Section -->
+          <v-card elevation="2" class="pa-4 mb-6">
+            <v-card-title class="d-flex justify-space-between align-center">
+              <span>MTSS Support</span>
+              <v-btn color="primary" @click="showAssignDialog = true"
+                >Assign New Tier/Intervention</v-btn
+              >
+            </v-card-title>
+            <v-card-text>
+              <v-row>
+                <v-col cols="12" sm="6">
+                  <v-card flat class="bg-blue-lighten-5 pa-4">
+                    <h3 class="text-subtitle-1 mb-2">Current Tier</h3>
+                    <p>
+                      <strong>Tier:</strong> {{ student.currentTier?.name || 'Tier 1 (Default)' }}
+                    </p>
+                    <p>
+                      <strong>Assigned:</strong> {{ student.currentTier?.assigned_date || 'N/A' }}
+                    </p>
+                    <p>
+                      <strong>Notes:</strong>
+                      {{ student.currentTier?.notes || 'No notes provided.' }}
+                    </p>
+                  </v-card>
+                </v-col>
+                <v-col cols="12" sm="6">
+                  <v-card flat class="bg-green-lighten-5 pa-4">
+                    <h3 class="text-subtitle-1 mb-2">Active Interventions</h3>
+                    <div v-if="student.activeInterventions?.length">
+                      <div
+                        v-for="(intervention, i) in student.activeInterventions"
+                        :key="i"
+                        class="mb-3"
+                      >
+                        <p>
+                          <strong>{{ intervention.name }}</strong>
+                        </p>
+                        <p>
+                          Focus: {{ intervention.focus_area }} | Tier: {{ intervention.tier_level }}
+                        </p>
+                        <p>Frequency: {{ intervention.frequency }}</p>
+                        <p>Started: {{ intervention.start_date }}</p>
+                        <v-divider class="my-2" />
                       </div>
-                      <div>Final: 
-                        <span :class="gradeTextColorClass(quarter.final)">
-                          {{ quarter.final }}
-                        </span>
-                      </div>
-                    </v-card>
-                  </v-col>
-                </v-row>
-              </v-card-text>
-            </v-card>
-          </v-col>
-        </v-row>
-      </v-card-text>
-    </v-card>
-  </v-col>
-</v-row>
+                    </div>
+                    <div v-else>
+                      <p>No active interventions assigned.</p>
+                    </div>
+                  </v-card>
+                </v-col>
+              </v-row>
+            </v-card-text>
+          </v-card>
+        </v-col>
+      </v-row>
+    </v-container>
 
+    <!-- Dialog -->
+    <v-dialog v-model="showAssignDialog" max-width="600">
+      <v-card>
+        <v-card-title class="text-h6">Assign Tier & Intervention</v-card-title>
+        <v-card-text>
+          <v-form>
+            <v-select label="Tier Level" :items="[1, 2, 3]" v-model="form.tier" required></v-select>
+            <v-select
+              label="Focus Area"
+              :items="['Reading', 'Math', 'Behavior']"
+              v-model="form.focus_area"
+              required
+            ></v-select>
+            <v-text-field
+              label="Intervention Name"
+              v-model="form.interventionName"
+              required
+            ></v-text-field>
+            <v-text-field label="Frequency" v-model="form.frequency" placeholder="e.g. 3x/week" />
+            <v-textarea label="Notes" v-model="form.notes" rows="3" />
+          </v-form>
+        </v-card-text>
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn text @click="showAssignDialog = false">Cancel</v-btn>
+          <v-btn color="primary" @click="submitTierAssignment">Save</v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+  </div>
 
-    <!-- Assessment Results -->
-    <v-row>
-      <v-col cols="12">
-        <v-card elevation="2" class="pa-4">
-          <v-card-title>Assessment Results</v-card-title>
-          <v-card-text>
-            <v-expansion-panels accordion>
-              <v-expansion-panel v-for="(a, i) in student.assessments" :key="i">
-                <v-expansion-panel-title>
-                  {{ a.assessmentName }} — Score: {{ a.score }}%
-                </v-expansion-panel-title>
-                <v-expansion-panel-text>
-                  <p><strong>Standardized:</strong> {{ a.standardized ? 'Yes' : 'No' }}</p>
-                  <v-table class="mt-2">
-                    <thead>
-                      <tr>
-                        <th>Question</th>
-                        <th>Max Points</th>
-                        <th>Earned Points</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      <tr v-for="(q, j) in a.questions" :key="j">
-                        <td>{{ q.question }}</td>
-                        <td>{{ q.maxPoints }}</td>
-                        <td>{{ q.earnedPoints }}</td>
-                      </tr>
-                    </tbody>
-                  </v-table>
-                </v-expansion-panel-text>
-              </v-expansion-panel>
-            </v-expansion-panels>
-          </v-card-text>
-        </v-card>
-      </v-col>
-    </v-row>
-
-  </v-container>
-  </div>  
   <div v-else>
     <v-container class="text-center">
       <v-row>
         <v-col cols="12">
-          <v-alert type="info" class="mt-5">
-            Loading student profile data...
-          </v-alert>
+          <v-alert type="info" class="mt-5">Loading student profile data...</v-alert>
         </v-col>
       </v-row>
     </v-container>
-    </div>  
+  </div>
 </template>
 
 <script>
@@ -176,124 +170,67 @@ export default defineComponent({
   data() {
     return {
       student: {
+        id: null,
+        name: null,
         assessments: [],
         behavior: [],
+        currentTier: null,
+        activeInterventions: [],
       },
       loading: false,
-      attendancePercentage: 0,
-      behaviorIncidents: 0,
       iepStatus: '',
-      gradebook: [
-        {
-          course_name: 'Mathematics',
-          quarters: [
-            { interim: '88%', final: '92%' },
-            { interim: '85%', final: '87%' },
-            { interim: '90%', final: '93%' },
-            { interim: '91%', final: '94%' },
-          ],
-        },
-        {
-          course_name: 'English',
-          quarters: [
-            { interim: '82%', final: '85%' },
-            { interim: '84%', final: '86%' },
-            { interim: '87%', final: '89%' },
-            { interim: '88%', final: '90%' },
-          ],
-        },
-        {
-          course_name: 'Science',
-          quarters: [
-            { interim: '90%', final: '93%' },
-            { interim: '89%', final: '91%' },
-            { interim: '92%', final: '94%' },
-            { interim: '93%', final: '95%' },
-          ],
-        },
-      ],
-      fakeGrades: [
-        {
-          subject: 'Math',
-          q1: 'A-',
-          q2: 'B+',
-          q3: 'A',
-          q4: 'A',
-          final: 'A',
-        },
-        {
-          subject: 'English',
-          q1: 'B',
-          q2: 'B',
-          q3: 'B+',
-          q4: 'A-',
-          final: 'B+',
-        },
-        {
-          subject: 'Science',
-          q1: 'A',
-          q2: 'A-',
-          q3: 'A',
-          q4: 'A',
-          final: 'A',
-        },
-        {
-          subject: 'History',
-          q1: 'B+',
-          q2: 'A',
-          q3: 'A-',
-          q4: 'B+',
-          final: 'A-',
-        },
-      ],
+      attendancePercentage: 0,
+      showAssignDialog: false,
+      form: {
+        tier: null,
+        interventionName: '',
+        focus_area: '',
+        frequency: '',
+        notes: '',
+      },
     }
   },
-    methods: {
-  gradeColorClass(grade) {
-    if (typeof grade === 'string') {
-      grade = parseInt(grade.replace('%', ''), 10);
-    }
-    if (grade >= 90) return 'bg-green-lighten-4'
-    if (grade >= 80) return 'bg-blue-lighten-4'
-    if (grade >= 70) return 'bg-amber-lighten-4'
-    return 'bg-red-lighten-4'
+  methods: {
+    async submitTierAssignment() {
+      try {
+        await axios.post('http://localhost:3000/mtss/student-tier/', {
+          studentId: this.student.id,
+          tierId: this.form.tier,
+          name: this.form.interventionName,
+          focus_area: this.form.focus_area,
+          frequency: this.form.frequency,
+          notes: this.form.notes,
+        })
+        this.showAssignDialog = false
+        await this.fetchStudent() // reload updated profile
+      } catch (err) {
+        console.error('Error assigning intervention:', err)
+      }
+    },
+    async fetchStudent() {
+      const studentId = this.$route.params.id
+      this.loading = true
+      try {
+        const res = await axios.get(`http://localhost:3000/profile/${studentId}`)
+        this.student = res.data
+        this.iepStatus = res.data?.iepStatus || ''
+        this.attendancePercentage = res.data?.attendancePercentage || 0
+      } catch (e) {
+        console.error('Error fetching student:', e)
+      } finally {
+        this.loading = false
+      }
+    },
   },
-  gradeTextColorClass(grade) {
-    if (grade >= 90) return 'text-green-darken-2'
-    if (grade >= 80) return 'text-blue-darken-2'
-    if (grade >= 70) return 'text-amber-darken-2'
-    return 'text-red-darken-2'
-  }
+  mounted() {
+    this.fetchStudent()
   },
-  async mounted() {
-    const studentId = this.$route.params.id;
-
-    this.loading = true;
-    try {
-      const response = await axios.get(`https://api.chalkrecords.com/profile/${studentId}`); // adjust as needed
-      this.student = response.data;
-      this.iepStatus = response.data?.iepStatus || '';
-    } catch (error) {
-      console.error('Error fetching student data:', error);
-    } finally {
-      this.loading = false;
-    }
-  }
-}
-)
+})
 </script>
 
 <style scoped>
 .v-card {
   border-radius: 10px;
-  transition: box-shadow 0.3s;
-}
-.v-card:hover {
-  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
-}
-.text-h5 {
-  font-weight: 600;
-  color: #2e7d32;
 }
 .text-center {
   text-align: center;
