@@ -78,7 +78,7 @@ export default {
   },
   methods: {
     selectStudent(student) {
-      this.$router.push({ name: 'profile', params: { id: student.student_number } })
+      this.$router.push({ name: 'profile', params: { id: student.id} })
     },
   },
 }
