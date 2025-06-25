@@ -129,7 +129,8 @@ async function submitToServer() {
       results: parsedResults.value,
     }
 
-    await axios.post('http://localhost:3000/assessments/upload', payload)
+    let result = await axios.post('http://localhost:3000/assessments/upload', payload)
+    console.log(result)
     alert('Results submitted successfully!')
   } catch (err) {
     console.error('Submission failed:', err)

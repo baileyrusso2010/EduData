@@ -78,6 +78,57 @@
         </v-list-item>
       </v-list-group>
 
+      <v-list-group v-model="dashboardsExpanded" color="primary">
+        <template v-slot:activator="{ props }">
+          <v-list-item v-bind="props" class="group-header">
+            <v-list-item-icon class="mr-3">
+              <v-icon size="20">mdi-cog</v-icon>
+            </v-list-item-icon>
+            <v-list-item-title class="text-subtitle-2">Dashboards</v-list-item-title>
+          </v-list-item>
+        </template>
+        <v-list-item
+          v-for="item in dashboards"
+          :key="item.title"
+          :to="item.to"
+          link
+          class="pl-8 nav-item"
+          active-class="active-nav-item"
+        >
+          <v-list-item-icon class="mr-3">
+            <v-icon size="20">{{ item.icon }}</v-icon>
+          </v-list-item-icon>
+          <v-list-item-content>
+            <v-list-item-title class="text-body-2">{{ item.title }}</v-list-item-title>
+          </v-list-item-content>
+        </v-list-item>
+      </v-list-group>
+
+      <v-list-group v-model="adminExpanded" color="primary">
+        <template v-slot:activator="{ props }">
+          <v-list-item v-bind="props" class="group-header">
+            <v-list-item-icon class="mr-3">
+              <v-icon size="20">mdi-cog</v-icon>
+            </v-list-item-icon>
+            <v-list-item-title class="text-subtitle-2">Admin</v-list-item-title>
+          </v-list-item>
+        </template>
+        <v-list-item
+          v-for="item in admin"
+          :key="item.title"
+          :to="item.to"
+          link
+          class="pl-8 nav-item"
+          active-class="active-nav-item"
+        >
+          <v-list-item-icon class="mr-3">
+            <v-icon size="20">{{ item.icon }}</v-icon>
+          </v-list-item-icon>
+          <v-list-item-content>
+            <v-list-item-title class="text-body-2">{{ item.title }}</v-list-item-title>
+          </v-list-item-content>
+        </v-list-item>
+      </v-list-group>
       <!-- Logout Button -->
       <!-- <v-list-item @click="logout" class="mt-2 nav-item">
         <v-list-item-icon class="mr-3">
@@ -99,6 +150,8 @@ const packageVersion = packageJson.version
 const drawer = ref(true)
 const generalExpanded = ref(true) // Controls General group collapse state
 const studentExpanded = ref(true) // Controls Student Management group collapse state
+const dashboardsExpanded = ref(true) // Controls Student Management group collapse state
+const adminExpanded = ref(true) // Controls Student Management group collapse state
 
 // Organized navigation items into groups
 const generalItems = [
@@ -108,12 +161,16 @@ const generalItems = [
 ]
 
 const studentItems = [
-  { title: 'Attendance', to: '/attendance', icon: 'mdi-account-check' },
-  { title: 'Breakdown', to: '/breakdown', icon: 'mdi-chart-bar' },
   { title: 'Class View', to: '/ClassView', icon: 'mdi-view-list' },
   { title: 'Create Assessment', to: '/createAssessment', icon: 'mdi-file-document-edit' },
-  { title: 'Upload', to: '/upload', icon: 'mdi-upload' },
 ]
+
+const dashboards = [
+  { title: 'Attendance', to: '/attendance', icon: 'mdi-account-check' },
+  { title: 'Breakdown', to: '/breakdown', icon: 'mdi-chart-bar' },
+]
+
+const admin = [{ title: 'Upload', to: '/upload', icon: 'mdi-upload' }]
 
 const logout = () => {
   console.log('Logout clicked')

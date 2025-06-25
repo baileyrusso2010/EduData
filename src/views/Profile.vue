@@ -1,6 +1,7 @@
 <template>
   <div v-if="!loading">
     <v-container fluid>
+      <motion.div class="box" :animate="{ rotate: 360 }" :transition="{ duration: 1 }" />
       <v-row align="start">
         <!-- SIDEBAR -->
         <v-col cols="12" md="3">
@@ -316,6 +317,7 @@
 
 <script>
 import { defineComponent } from 'vue'
+import { motion } from 'motion-v'
 import axios from 'axios'
 import {
   Chart as ChartJS,
@@ -561,5 +563,11 @@ export default defineComponent({
 .v-list-item-subtitle {
   font-size: 0.85rem;
   color: #555;
+}
+.box {
+  width: 100px;
+  height: 100px;
+  background-color: #0cdcf7;
+  border-radius: 5px;
 }
 </style>
