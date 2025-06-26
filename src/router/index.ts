@@ -11,6 +11,7 @@ import ClassFinder from '../views/ClassFinder.vue'
 import Breakdown from '../views/Breakdown.vue'
 import ClassView from '../views/ClassView.vue'
 import CreateAssessment from '../views/CreateAssessment.vue'
+import DataIngest from '../views/DataIngest.vue'
 
 const routes = [
   {
@@ -54,6 +55,10 @@ const routes = [
   {
     path: '/createAssessment',
     component: CreateAssessment,
+  },
+  {
+    path: '/data',
+    component: DataIngest,
   },
   {
     path: '/:pathMatch(.*)*',

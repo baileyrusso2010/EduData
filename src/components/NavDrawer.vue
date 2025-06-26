@@ -29,7 +29,7 @@
         <template v-slot:activator="{ props }">
           <v-list-item v-bind="props" class="group-header">
             <v-list-item-icon class="mr-3">
-              <v-icon size="20">mdi-cog</v-icon>
+              <v-icon size="20">mdi-home</v-icon>
             </v-list-item-icon>
             <v-list-item-title class="text-subtitle-2">General</v-list-item-title>
           </v-list-item>
@@ -82,7 +82,7 @@
         <template v-slot:activator="{ props }">
           <v-list-item v-bind="props" class="group-header">
             <v-list-item-icon class="mr-3">
-              <v-icon size="20">mdi-cog</v-icon>
+              <v-icon size="20">mdi-chart-bar</v-icon>
             </v-list-item-icon>
             <v-list-item-title class="text-subtitle-2">Dashboards</v-list-item-title>
           </v-list-item>
@@ -157,17 +157,18 @@ const adminExpanded = ref(true) // Controls Student Management group collapse st
 const generalItems = [
   { title: 'Home', to: '/', icon: 'mdi-home' },
   { title: 'Search', to: '/student_search', icon: 'mdi-magnify' },
-  { title: 'Class Finder', to: '/ClassFinder', icon: 'mdi-school' },
+  { title: 'Class Finder', to: '/ClassFinder', icon: 'mdi-domain' },
 ]
 
 const studentItems = [
   { title: 'Class View', to: '/ClassView', icon: 'mdi-view-list' },
-  { title: 'Create Assessment', to: '/createAssessment', icon: 'mdi-file-document-edit' },
+  { title: 'Create Assessment', to: '/createAssessment', icon: 'mdi-file-document-edit-outline' },
 ]
 
 const dashboards = [
-  { title: 'Attendance', to: '/attendance', icon: 'mdi-account-check' },
+  { title: 'Attendance', to: '/attendance', icon: 'mdi-account-check-outline' },
   { title: 'Breakdown', to: '/breakdown', icon: 'mdi-chart-bar' },
+  { title: 'Data', to: '/data', icon: 'mdi-database-outline' },
 ]
 
 const admin = [{ title: 'Upload', to: '/upload', icon: 'mdi-upload' }]

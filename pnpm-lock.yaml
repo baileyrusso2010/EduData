@@ -8,6 +8,9 @@ importers:
 
   .:
     dependencies:
+      '@mdi/font':
+        specifier: ^7.4.47
+        version: 7.4.47
       '@types/papaparse':
         specifier: ^5.3.16
         version: 5.3.16
@@ -488,6 +491,9 @@ packages:
 
   '@kurkle/color@0.3.4':
     resolution: {integrity: sha512-M5UknZPHRu3DEDWoipU6sE8PdkZ6Z/S+v4dD+Ke8IaNlpdSQah50lz1KtcFBa2vsdOnwbbnxJwVM4wty6udA5w==}
+
+  '@mdi/font@7.4.47':
+    resolution: {integrity: sha512-43MtGpd585SNzHZPcYowu/84Vz2a2g31TvPMTm9uTiCSWzaheQySUcSyUH/46fPnuPQWof2yd0pGBtzee/IQWw==}
 
   '@napi-rs/canvas-android-arm64@0.1.71':
     resolution: {integrity: sha512-cxi3VCotIOS9kNFQI7dcysbVJi106pxryVY1Hi85pX+ZeqahRyeqc/NsLaZ998Ae99+F3HI5X/39G1Y/Byrf0A==}
@@ -2697,6 +2703,8 @@ snapshots:
       '@jridgewell/sourcemap-codec': 1.5.0
 
   '@kurkle/color@0.3.4': {}
+
+  '@mdi/font@7.4.47': {}
 
   '@napi-rs/canvas-android-arm64@0.1.71':
     optional: true

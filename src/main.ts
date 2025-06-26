@@ -5,6 +5,7 @@ import vuetify from './plugins/vuetify'
 import router from './router'
 import { Chart, registerables } from 'chart.js'
 import { Bar, Line } from 'vue-chartjs'
+import '@mdi/font/css/materialdesignicons.css'
 
 Chart.register(...registerables)
 const app = createApp(App)
