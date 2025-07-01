@@ -1,59 +1,90 @@
 <template>
   <v-container class="py-10">
-    <v-select
-      v-model="selectedAssessmentId"
-      :items="assessments"
-      item-title="test_name"
-      item-value="id"
-      label="Select Assessment"
-      :loading="isLoading"
-      :disabled="isLoading"
-    ></v-select>
+    <v-card class="pa-6 elevation-3 rounded-xl">
+      <v-card-title class="text-h5 mb-4">📥 Question Importer</v-card-title>
 
-    <v-file-input
-      v-model="selectedFile"
-      label="Upload CSV File"
-      accept=".csv"
-      class="mt-4"
-      prepend-icon="mdi-upload"
-      :disabled="!selectedAssessmentId"
-    />
+      <!-- Assessment Dropdown -->
+      <v-select
+        v-model="selectedAssessmentId"
+        :items="assessments"
+        item-title="test_name"
+        item-value="id"
+        label="Select Assessment"
+        :loading="isLoading"
+        :disabled="isLoading"
+        class="mb-4"
+        outlined
+      />
 
-    <v-btn
-      class="mt-4"
-      color="primary"
-      @click="submitToServer"
-      :disabled="!parsedResults.length || !selectedAssessmentId"
-    >
-      Submit to Server
-    </v-btn>
+      <!-- File Upload -->
+      <v-file-input
+        label="Upload CSV File"
+        accept=".csv"
+        @change="handleQuestionsUpload"
+        prepend-icon="mdi-upload"
+        outlined
+        dense
+        class="mb-6"
+      />
 
-    <v-card class="mt-6" v-if="parsedResults.length">
-      <v-card-title>Parsed Preview (First Record)</v-card-title>
-      <v-card-text>
-        <pre>{{ JSON.stringify(parsedResults[0], null, 2) }}</pre>
-      </v-card-text>
+      <!-- Preview Section -->
+      <div v-if="parsedQuestions.length > 0">
+        <v-card class="mb-4 pa-4 elevation-1" color="grey-lighten-4">
+          <v-card-title class="text-h6"
+            >Preview ({{ parsedQuestions.length }} Questions)</v-card-title
+          >
+          <v-divider class="my-2" />
+          <v-list>
+            <v-list-item v-for="(q, index) in parsedQuestions" :key="index" class="px-0">
+              <v-list-item-content>
+                <strong>Q{{ q.question_num }}:</strong> {{ q.text }}
+                <div class="mt-1">
+                  <v-chip v-if="q.subscore_type" color="blue lighten-4" class="mr-2" label small>
+                    Subscore: {{ q.subscore_type }}
+                  </v-chip>
+                  <v-chip v-if="q.category" color="green lighten-4" label small>
+                    Category: {{ q.category }}
+                  </v-chip>
+                  <span v-if="!q.subscore_type && !q.category" class="text-caption text-grey">
+                    No subscore or category
+                  </span>
+                </div>
+              </v-list-item-content>
+            </v-list-item>
+          </v-list>
+        </v-card>
+      </div>
+
+      <!-- Submit Button -->
+      <v-btn
+        :loading="isSubmitting"
+        :disabled="!selectedAssessmentId || parsedQuestions.length === 0"
+        color="primary"
+        class="mt-2"
+        @click="submitQuestions"
+      >
+        Submit Questions
+      </v-btn>
     </v-card>
   </v-container>
 </template>
 
 <script lang="ts" setup>
-import { ref, onMounted, watch } from 'vue'
-import axios from 'axios'
+import { ref, onMounted } from 'vue'
 import Papa from 'papaparse'
-
-// State
-const isLoading = ref(false)
+import axios from 'axios'
 const assessments = ref<any[]>([])
 const selectedAssessmentId = ref<number | null>(null)
-const selectedFile = ref<File | null>(null)
-const parsedResults = ref<any[]>([])
+const isSubmitting = ref(false)
+
+const isLoading = ref(false)
 
 // Fetch assessments
 onMounted(async () => {
   isLoading.value = true
   try {
     const response = await axios.get('http://localhost:3000/assessments/')
+    console.log(response)
     assessments.value = response.data
   } catch (err) {
     console.error('Error fetching assessments:', err)
@@ -63,78 +94,72 @@ onMounted(async () => {
   }
 })
 
-// Watch for file upload and parse
-watch(selectedFile, (file) => {
-  if (!file) return
-
-  Papa.parse(file, {
-    header: true,
-    skipEmptyLines: true,
-    complete: (result) => {
-      const rawRows = result.data as any[]
-      parsedResults.value = formatStandardCsv(rawRows)
-      console.log('Formatted Results:', parsedResults.value)
-    },
-  })
-})
-
-// Format CSV rows based on standardized template
 interface Question {
-  question_id: string
-  question: string | null
-  score: number | null
-  max_score: number | null
+  question_num: number
+  text: string
+  subscore_type: string | null
+  category: string | null
 }
 
-function formatStandardCsv(rows: any[]) {
-  const formatted = []
+const parsedQuestions = ref<Question[]>([])
 
-  for (const row of rows) {
-    const person_id = row.personId || row.person_id || row.ID
-    const final_score = row.final || row.final_score
-    const result_data = []
+const handleQuestionsUpload = (event: Event) => {
+  const target = event.target as HTMLInputElement
+  if (target.files && target.files.length > 0) {
+    const file = target.files[0]
+    const reader = new FileReader()
 
-    for (const key of Object.keys(row)) {
-      const match = key.match(/^Q(\d+)(_points|_max)?$/i)
-      if (match) {
-        const qNum = match[1]
-        const suffix = match[2] || ''
-        const qId = `q${qNum}`
+    reader.onload = (e) => {
+      const text = e.target?.result as string
 
-        let question: Question | undefined = result_data.find((q) => q.question_id === qId)
-        if (!question) {
-          question = { question_id: qId, question: null, score: null, max_score: null }
-          result_data.push(question)
-        }
+      Papa.parse(text, {
+        header: true,
+        skipEmptyLines: true,
+        complete: (results) => {
+          const cleaned = results.data
+            .map((row: any) => {
+              if (!row.question_num || !row.text) return null
 
-        if (!suffix) question!.question = row[key]
-        else if (suffix === '_points') question!.score = parseFloat(row[key])
-        else if (suffix === '_max') question!.max_score = parseFloat(row[key])
-      }
+              return {
+                question_num: parseInt(row.question_num),
+                text: row.text.trim(),
+                subscore_type: row.subscore_type?.trim() || null,
+                category: row.category?.trim() || null,
+              }
+            })
+            .filter(Boolean) as Question[] // Remove nulls and assert type
+          parsedQuestions.value = cleaned
+          console.log('Parsed Questions:', cleaned)
+        },
+        error: (err: any) => {
+          console.error('CSV Parse Error:', err.message)
+        },
+      })
     }
 
-    formatted.push({ person_id, final_score, result_data })
+    reader.readAsText(file)
   }
-
-  return formatted
 }
-
-// Submit to backend
-async function submitToServer() {
-  if (!selectedAssessmentId.value) return
-
+const submitQuestions = async () => {
+  if (!selectedAssessmentId.value || parsedQuestions.value.length === 0) return
+  isSubmitting.value = true
   try {
-    const payload = {
+    const response = await axios.post('http://localhost:3000/assessments/createQuestions', {
       assessment_id: selectedAssessmentId.value,
-      results: parsedResults.value,
-    }
+      questions: parsedQuestions.value,
+    })
 
-    let result = await axios.post('http://localhost:3000/assessments/upload', payload)
-    console.log(result)
-    alert('Results submitted successfully!')
-  } catch (err) {
-    console.error('Submission failed:', err)
-    alert('Submission failed.')
+    console.log('Import success:', response.data)
+    alert('Questions imported successfully!')
+    // Clear out contents after successful import
+    parsedQuestions.value = []
+    selectedAssessmentId.value = null
+    // Optionally, reset file input (if needed, use a ref on v-file-input and reset its value)
+  } catch (error: any) {
+    console.error('Import failed:', error)
+    alert('Error importing questions. Check console.')
+  } finally {
+    isSubmitting.value = false
   }
 }
 </script>

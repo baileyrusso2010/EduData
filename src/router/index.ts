@@ -12,6 +12,7 @@ import Breakdown from '../views/Breakdown.vue'
 import ClassView from '../views/ClassView.vue'
 import CreateAssessment from '../views/CreateAssessment.vue'
 import DataIngest from '../views/DataIngest.vue'
+import ScoreImporter from '../views/ScoreImporter.vue'
 
 const routes = [
   {
@@ -55,6 +56,10 @@ const routes = [
   {
     path: '/createAssessment',
     component: CreateAssessment,
+  },
+  {
+    path: '/scoreImporter',
+    component: ScoreImporter,
   },
   {
     path: '/data',

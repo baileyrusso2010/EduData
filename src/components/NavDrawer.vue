@@ -171,7 +171,10 @@ const dashboards = [
   { title: 'Data', to: '/data', icon: 'mdi-database-outline' },
 ]
 
-const admin = [{ title: 'Upload', to: '/upload', icon: 'mdi-upload' }]
+const admin = [
+  { title: 'Upload', to: '/upload', icon: 'mdi-upload' },
+  { title: 'Score Importer', to: '/scoreImporter', icon: 'mdi-upload' },
+]
 
 const logout = () => {
   console.log('Logout clicked')
