@@ -100,12 +100,22 @@ const handleScoreUpload = (event: Event) => {
         skipEmptyLines: true,
         complete: (results) => {
           const cleaned: ScoreRow[] = results.data.map((row: any) => {
-            const { student_id, ...rest } = row
+            const { student_id, total_score, ...answers } = row
+
             return {
               student_id: parseInt(student_id),
-              answers: rest,
+              answers,
+              final_scores: total_score
+                ? [
+                    {
+                      score_type: 'total',
+                      score_value: total_score,
+                    },
+                  ]
+                : [],
             }
           })
+
           parsedScores.value = cleaned
         },
       })
@@ -119,11 +129,12 @@ const submitScores = async () => {
   if (!selectedAssessmentId.value || parsedScores.value.length === 0) return
   isSubmitting.value = true
   try {
-    await axios.post('http://localhost:3000/assessments/scores', {
+    const results = await axios.post('http://localhost:3000/assessments/scores', {
       assessment_id: selectedAssessmentId.value,
       scores: parsedScores.value,
     })
     alert('Scores imported successfully!')
+    console.log(results)
   } catch (err) {
     console.error(err)
     alert('Failed to import scores.')

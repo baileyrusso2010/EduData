@@ -74,8 +74,7 @@
           </v-row>
 
           <!-- Gradebook -->
-          <!-- GRADEBOOK CARD -->
-          <!-- GRADEBOOK CARD -->
+          <!-- Gradebook Section -->
           <v-card class="mt-6 pa-6 elevation-2 rounded-xl">
             <v-card-title class="text-h6">Gradebook</v-card-title>
             <v-divider class="my-4" />
@@ -83,69 +82,67 @@
             <div v-for="(course, index) in gradebook" :key="index" class="mb-8">
               <div class="text-subtitle-1 mb-2">{{ course.class }}</div>
 
-              <!-- Segmented Quarter Table -->
+              <!-- Quarter Cards -->
               <v-row class="mb-2" no-gutters>
-                <v-col cols="12" md="3">
+                <v-col
+                  cols="12"
+                  md="3"
+                  v-for="(quarter, qIdx) in [
+                    { name: 'Quarter 1', values: [`Q1: ${course.q1}`, `5W: ${course.five_week}`] },
+                    { name: 'Quarter 2', values: [`Q2: ${course.q2}`, `10W: ${course.ten_week}`] },
+                    {
+                      name: 'Quarter 3',
+                      values: [`Q3: ${course.q3}`, `15W: ${course.fifteen_week}`],
+                    },
+                    {
+                      name: 'Quarter 4',
+                      values: [`Q4: ${course.q4}`, `20W: ${course.twenty_week}`],
+                    },
+                  ]"
+                  :key="qIdx"
+                >
                   <v-sheet class="pa-4 me-2 bg-grey-lighten-4 rounded-lg text-center">
-                    <h4 class="text-body-1 mb-2">Quarter 1</h4>
-                    <div><strong>Q1:</strong> {{ course.q1 }}</div>
-                    <div><strong>5W:</strong> {{ course.five_week }}</div>
-                  </v-sheet>
-                </v-col>
-
-                <v-col cols="12" md="3">
-                  <v-sheet class="pa-4 me-2 bg-grey-lighten-4 rounded-lg text-center">
-                    <h4 class="text-body-1 mb-2">Quarter 2</h4>
-                    <div><strong>Q2:</strong> {{ course.q2 }}</div>
-                    <div><strong>10W:</strong> {{ course.ten_week }}</div>
-                  </v-sheet>
-                </v-col>
-
-                <v-col cols="12" md="3">
-                  <v-sheet class="pa-4 me-2 bg-grey-lighten-4 rounded-lg text-center">
-                    <h4 class="text-body-1 mb-2">Quarter 3</h4>
-                    <div><strong>Q3:</strong> {{ course.q3 }}</div>
-                    <div><strong>15W:</strong> {{ course.fifteen_week }}</div>
-                  </v-sheet>
-                </v-col>
-
-                <v-col cols="12" md="3">
-                  <v-sheet class="pa-4 bg-grey-lighten-4 rounded-lg text-center">
-                    <h4 class="text-body-1 mb-2">Quarter 4</h4>
-                    <div><strong>Q4:</strong> {{ course.q4 }}</div>
-                    <div><strong>20W:</strong> {{ course.twenty_week }}</div>
+                    <h4 class="text-body-1 mb-2">{{ quarter.name }}</h4>
+                    <div v-for="(val, i) in quarter.values" :key="i">
+                      <strong>{{ val }}</strong>
+                    </div>
                   </v-sheet>
                 </v-col>
               </v-row>
+            </div>
+          </v-card>
 
-              <!-- Assessments Section -->
-              <div class="mt-4">
-                <div class="text-subtitle-2 text-medium-emphasis mb-2">Assessments</div>
-                <v-row dense>
-                  <v-col
-                    v-for="(assessment, i) in course.assessments"
-                    :key="i"
-                    cols="12"
-                    sm="6"
-                    md="4"
+          <!-- Assessments Section (Now its Own Card) -->
+          <v-card class="mt-6 pa-6 elevation-2 rounded-xl">
+            <v-card-title class="text-h6">Assessments</v-card-title>
+            <v-divider class="my-4" />
+
+            <div v-for="(course, cIdx) in gradebook" :key="cIdx" class="mb-6">
+              <h4 class="text-subtitle-2 text-medium-emphasis mb-3">{{ course.class }}</h4>
+              <v-row dense>
+                <v-col
+                  v-for="(assessment, i) in course.assessments"
+                  :key="i"
+                  cols="12"
+                  sm="6"
+                  md="4"
+                >
+                  <v-card
+                    class="pa-4 rounded-lg hoverable cursor-pointer"
+                    @click="openAssessmentModal(assessment)"
                   >
-                    <v-card
-                      class="pa-4 rounded-lg hoverable cursor-pointer"
-                      @click="openAssessmentModal(assessment)"
-                    >
-                      <div class="text-body-1 font-weight-medium mb-1">
-                        {{ assessment.title }}
-                      </div>
-                      <div class="text-caption text-medium-emphasis mb-2">
-                        {{ assessment.date }}
-                      </div>
-                      <div class="text-h5 font-weight-bold text-primary">
-                        {{ assessment.score }}
-                      </div>
-                    </v-card>
-                  </v-col>
-                </v-row>
-              </div>
+                    <div class="text-body-1 font-weight-medium mb-1">
+                      {{ assessment.title }}
+                    </div>
+                    <div class="text-caption text-medium-emphasis mb-2">
+                      {{ assessment.date }}
+                    </div>
+                    <div class="text-h5 font-weight-bold text-primary">
+                      {{ assessment.score }}
+                    </div>
+                  </v-card>
+                </v-col>
+              </v-row>
             </div>
           </v-card>
 

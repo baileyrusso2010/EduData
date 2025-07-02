@@ -160,20 +160,20 @@ const generalItems = [
   { title: 'Class Finder', to: '/ClassFinder', icon: 'mdi-domain' },
 ]
 
-const studentItems = [
-  { title: 'Class View', to: '/ClassView', icon: 'mdi-view-list' },
-  { title: 'Create Assessment', to: '/createAssessment', icon: 'mdi-file-document-edit-outline' },
-]
+const studentItems = [{ title: 'Class View', to: '/ClassView', icon: 'mdi-view-list' }]
 
 const dashboards = [
   { title: 'Attendance', to: '/attendance', icon: 'mdi-account-check-outline' },
   { title: 'Breakdown', to: '/breakdown', icon: 'mdi-chart-bar' },
   { title: 'Data', to: '/data', icon: 'mdi-database-outline' },
+  { title: 'Class', to: '/classPerformance', icon: 'mdi-database-outline' },
 ]
 
 const admin = [
-  { title: 'Upload', to: '/upload', icon: 'mdi-upload' },
+  { title: 'Upload Questions', to: '/upload', icon: 'mdi-upload' },
+  { title: 'Create Assessment', to: '/createAssessment', icon: 'mdi-file-document-edit-outline' },
   { title: 'Score Importer', to: '/scoreImporter', icon: 'mdi-upload' },
+  { title: 'Band Editor', to: '/bandEditor', icon: 'mdi-edit' },
 ]
 
 const logout = () => {

@@ -13,6 +13,8 @@ import ClassView from '../views/ClassView.vue'
 import CreateAssessment from '../views/CreateAssessment.vue'
 import DataIngest from '../views/DataIngest.vue'
 import ScoreImporter from '../views/ScoreImporter.vue'
+import BandEditor from '../views/BandEditor.vue'
+import ClassRoomPerofrmance from '../views/ClassRoomPerofrmance.vue'
 
 const routes = [
   {
@@ -64,6 +66,14 @@ const routes = [
   {
     path: '/data',
     component: DataIngest,
+  },
+  {
+    path: '/bandEditor',
+    component: BandEditor,
+  },
+  {
+    path: '/classPerformance',
+    component: ClassRoomPerofrmance,
   },
   {
     path: '/:pathMatch(.*)*',

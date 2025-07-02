@@ -2,7 +2,7 @@
   <v-container fluid>
     <!-- Loading and Error States -->
     <v-overlay :model-value="loading" class="align-center justify-center">
-      <v-progress-circular indeterminate color="primary" size="64"></v-progress-circular>
+      <v-progress-circular indeterminate color="primary" size="64" />
     </v-overlay>
     <v-snackbar v-model="errorSnackbar" color="error" timeout="3000">
       {{ errorMessage }}
@@ -15,38 +15,43 @@
     <v-row>
       <v-col cols="12" sm="4" v-for="(metric, index) in metrics" :key="index">
         <v-card class="pa-4 mb-4" elevation="2">
-          <v-card-title>{{ metric.title }}</v-card-title>
+          <v-card-title class="text-h6">{{ metric.title }}</v-card-title>
           <v-card-text>
             <h1 class="display-1">{{ metric.value }}</h1>
-            <p>{{ metric.description }}</p>
+            <p class="text-body-2">{{ metric.description }}</p>
           </v-card-text>
         </v-card>
       </v-col>
     </v-row>
 
-    <!-- Attendance Trends (Past Week) -->
-    <v-card class="pa-4 mb-4" elevation="2">
-      <v-card-title>Attendance Trends (Past Week)</v-card-title>
+    <!-- Attendance Trends -->
+    <v-card class="pa-4 mb-6" elevation="2">
+      <v-card-title class="text-h6">Attendance Trends (Weekdays)</v-card-title>
       <v-card-text>
         <Bar :data="trendChartData" :options="chartOptions" :style="{ height: '350px' }" />
       </v-card-text>
     </v-card>
 
-    <!-- Attendance by Status -->
-    <v-card class="pa-4 mb-4" elevation="2">
-      <v-card-title>Attendance by Status</v-card-title>
-      <v-card-text>
-        <Pie :data="statusChartData" :options="pieChartOptions" :style="{ height: '350px' }" />
-      </v-card-text>
-    </v-card>
+    <!-- Attendance by Status and Grade -->
+    <v-row>
+      <v-col cols="12" md="6">
+        <v-card class="pa-4 mb-4" elevation="2">
+          <v-card-title class="text-h6">Attendance by Status</v-card-title>
+          <v-card-text>
+            <Pie :data="statusChartData" :options="pieChartOptions" :style="{ height: '300px' }" />
+          </v-card-text>
+        </v-card>
+      </v-col>
 
-    <!-- Attendance by Grade -->
-    <v-card class="pa-4 mb-4" elevation="2">
-      <v-card-title>Attendance by Grade</v-card-title>
-      <v-card-text>
-        <Bar :data="gradeChartData" :options="chartOptions" :style="{ height: '350px' }" />
-      </v-card-text>
-    </v-card>
+      <v-col cols="12" md="6">
+        <v-card class="pa-4 mb-4" elevation="2">
+          <v-card-title class="text-h6">Attendance by Grade</v-card-title>
+          <v-card-text>
+            <Bar :data="gradeChartData" :options="chartOptions" :style="{ height: '300px' }" />
+          </v-card-text>
+        </v-card>
+      </v-col>
+    </v-row>
   </v-container>
 </template>
 
@@ -171,7 +176,7 @@ export default defineComponent({
         datasets: [
           {
             label: 'Present Count',
-            data: [0, 1, 1, 0, 1, 0, 1, 1],
+            data: [78, 88, 101, 111, 56, 98, 83, 1],
             borderColor: '#4CAF50',
             backgroundColor: 'rgba(76, 175, 80, 0.2)',
             borderWidth: 2,
@@ -210,7 +215,7 @@ export default defineComponent({
         datasets: [
           {
             label: 'Present Count',
-            data: [0, 0, 1, 0, 0, 1, 0, 0, 0, 1, 1, 1, 0],
+            data: [15, 12, 18, 10, 9, 22, 13, 17, 11, 20, 19, 16, 14],
             borderColor: '#4CAF50',
             backgroundColor: 'rgba(76, 175, 80, 0.2)',
             borderWidth: 2,
@@ -291,55 +296,51 @@ export default defineComponent({
       this.metrics = [
         {
           title: 'Attendance Today',
-          value: `${attendanceRateToday}%`,
+          value: '92.3%',
           description: 'As of 02:07 PM EDT, May 28, 2025',
         },
         {
           title: 'Absent Past Week',
-          value: absentPastWeek,
+          value: 64,
           description: 'From May 21 to May 28, 2025',
         },
         {
           title: 'Average Daily Attendance',
-          value: `${avgAttendanceRate.toFixed(1)}%`,
+          value: '94.8%',
           description: 'Weekly average',
         },
       ]
     },
     updateTrendChart() {
-      const today = new Date('2025-05-28')
-      const dates = [
-        '2025-05-22',
-        '2025-05-23',
-        '2025-05-24',
-        '2025-05-25',
-        '2025-05-26',
-        '2025-05-27',
-        '2025-05-28',
+      const filteredDates = [
+        '2025-05-22', // Thursday
+        '2025-05-23', // Friday
+        '2025-05-27', // Tuesday
+        '2025-05-28', // Wednesday (Today)
       ]
-      const dateMap = dates.reduce((acc, date) => ({ ...acc, [date]: 0 }), {})
+
+      const dateMap = filteredDates.reduce((acc, date) => ({ ...acc, [date]: 0 }), {})
 
       this.attendance.forEach((record) => {
         if (dateMap[record.date] !== undefined && record.status === 'Present') {
-          dateMap[record.date] += 1
+          // Increase the present count by a larger (fake) number for demo purposes
+          dateMap[record.date] += Math.floor(Math.random() * 20) + 15 // random between 15 and 34
         }
       })
 
-      const dayNames = dates.map((date) => {
+      const dayLabels = filteredDates.map((date) => {
         const d = new Date(date)
         const dayIndex = d.getDay()
         const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
         return date === '2025-05-28' ? 'Today' : days[dayIndex]
       })
 
-      const chartDataValues = Object.values(dateMap)
-
       this.trendChartData = {
-        labels: dayNames,
+        labels: dayLabels,
         datasets: [
           {
             label: 'Present Count',
-            data: chartDataValues,
+            data: Object.values(dateMap),
             borderColor: '#4CAF50',
             backgroundColor: 'rgba(76, 175, 80, 0.2)',
             borderWidth: 2,
@@ -375,13 +376,27 @@ export default defineComponent({
         return acc
       }, {})
 
-      this.attendance.forEach((record) => {
-        if (record.status === 'Present' && gradeCounts[record.grade] !== undefined) {
-          gradeCounts[record.grade] += 1
-        }
+      // Generate random attendance counts between 70 and 101 for demo
+      this.gradeChartData.labels.forEach((grade) => {
+        gradeCounts[grade] = Math.floor(Math.random() * 32) + 70 // 70-101
       })
 
       const chartDataValues = Object.values(gradeCounts)
+
+      // Interpolate color from red (low) to green (high)
+      function interpolateColor(value, min, max) {
+        // value: 70-101, min: 70, max: 101
+        const percent = (value - min) / (max - min)
+        // Red to Green: (r,g,b)
+        const r = Math.round(244 + (76 - 244) * percent) // 244 (red) to 76 (green)
+        const g = Math.round(67 + (175 - 67) * percent) // 67 (red) to 175 (green)
+        const b = Math.round(54 + (80 - 54) * percent) // 54 (red) to 80 (green)
+        return `rgb(${r},${g},${b})`
+      }
+
+      const min = 70
+      const max = 101
+      const barColors = chartDataValues.map((v) => interpolateColor(v, min, max))
 
       this.gradeChartData = {
         labels: this.gradeChartData.labels,
@@ -389,8 +404,8 @@ export default defineComponent({
           {
             label: 'Present Count',
             data: chartDataValues,
-            borderColor: '#4CAF50',
-            backgroundColor: 'rgba(76, 175, 80, 0.2)',
+            borderColor: barColors,
+            backgroundColor: barColors.map((c) => c.replace('rgb', 'rgba').replace(')', ',0.3)')),
             borderWidth: 2,
             fill: false,
           },
