@@ -15,6 +15,7 @@ import DataIngest from '../views/DataIngest.vue'
 import ScoreImporter from '../views/ScoreImporter.vue'
 import BandEditor from '../views/BandEditor.vue'
 import ClassRoomPerofrmance from '../views/ClassRoomPerofrmance.vue'
+import StudentInterventions from '../views/StudentInterventions.vue'
 
 const routes = [
   {
@@ -74,6 +75,10 @@ const routes = [
   {
     path: '/classPerformance',
     component: ClassRoomPerofrmance,
+  },
+  {
+    path: '/studentIntervention/:studentId',
+    component: StudentInterventions,
   },
   {
     path: '/:pathMatch(.*)*',

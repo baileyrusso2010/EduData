@@ -340,12 +340,12 @@ export default defineComponent({
       const studentId = this.$route.params.id
       const interventionData = { studentId: '2', ...this.interventionDialog.data }
       const endpoint = this.interventionDialog.editing
-        ? `http://localhost:3000/profile/${studentId}/interventions/${interventionData.id}`
+        ? `http://localhost:3000/mtss/notes`
         : `http://localhost:3000/mtss/student-tier`
 
       try {
         if (this.interventionDialog.editing) {
-          await axios.put(endpoint, interventionData)
+          await axios.put(endpoint, {notes: interventionData.notes})
         } else {
           console.log(interventionData)
           await axios.post(endpoint, interventionData)
