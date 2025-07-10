@@ -164,7 +164,6 @@ const studentItems = [{ title: 'Class View', to: '/ClassView', icon: 'mdi-view-l
 
 const dashboards = [
   { title: 'Attendance', to: '/attendance', icon: 'mdi-account-check-outline' },
-  { title: 'Breakdown', to: '/breakdown', icon: 'mdi-chart-bar' },
   { title: 'Data', to: '/data', icon: 'mdi-database-outline' },
   { title: 'Class', to: '/classPerformance', icon: 'mdi-database-outline' },
 ]

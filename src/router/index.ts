@@ -8,7 +8,6 @@ import PageNotFound from '../views/PageNotFound.vue'
 import UploadAssessment from '../views/UploadAssessment.vue'
 import StudentSearch from '../views/StudentSearch.vue'
 import ClassFinder from '../views/ClassFinder.vue'
-import Breakdown from '../views/Breakdown.vue'
 import ClassView from '../views/ClassView.vue'
 import CreateAssessment from '../views/CreateAssessment.vue'
 import DataIngest from '../views/DataIngest.vue'
@@ -47,10 +46,6 @@ const routes = [
   {
     path: '/ClassFinder',
     component: ClassFinder,
-  },
-  {
-    path: '/breakdown',
-    component: Breakdown,
   },
   {
     path: '/classview',

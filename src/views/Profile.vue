@@ -156,16 +156,15 @@
           <v-card class="mt-6 pa-6 elevation-2 rounded-xl">
             <v-card-title class="d-flex justify-space-between align-center">
               <span class="text-h6">MTSS Interventions</span>
-              <v-btn icon color="primary" @click="openAddInterventionDialog">
-                <v-icon>mdi-plus</v-icon>
-              </v-btn>
             </v-card-title>
             <v-divider class="my-4" />
 
-            <div v-if="student.activeInterventions?.length">
+            <div v-if="student.StudentInterventions?.length">
               <v-timeline align="start" dense>
                 <v-timeline-item
-                  v-for="(intervention, i) in student.activeInterventions"
+                  v-for="(intervention, i) in student.StudentInterventions.filter(
+                    (i) => !i.end_date,
+                  )"
                   :key="i"
                   color="green"
                   icon="mdi-lifebuoy"
@@ -176,19 +175,15 @@
                     </div>
                   </template>
 
-                  <v-card
-                    class="pa-4"
-                    outlined
-                    rounded="xl"
-                    @click="openEditInterventionDialog(intervention)"
-                  >
+                  <v-card class="pa-4" outlined rounded="xl">
                     <v-card-title class="text-h6 mb-2">
                       <v-icon color="primary" class="me-2">mdi-heart-pulse</v-icon>
                       {{ intervention.name }}
                     </v-card-title>
 
                     <v-card-subtitle class="text-caption text-medium-emphasis mb-2">
-                      Tier {{ intervention.tier_level }} — Focus: {{ intervention.focus_area }}
+                      Tier {{ intervention.tier_level }} — Focus:
+                      {{ intervention.Intervention.focus_area }}
                     </v-card-subtitle>
 
                     <v-row>
@@ -198,7 +193,7 @@
                           class="ma-1 py-3 px-4"
                           text-color="blue darken-3"
                         >
-                          <strong>Frequency:</strong> {{ intervention.frequency }}
+                          <strong>Frequency:</strong> {{ intervention.Intervention.frequency }}
                         </v-chip>
                       </v-col>
                       <v-col cols="12" sm="6">
@@ -208,7 +203,9 @@
                           text-color="black"
                         >
                           {{
-                            intervention.end_date ? `Ended: ${intervention.end_date}` : 'Ongoing'
+                            intervention.end_date
+                              ? `Ended: ${intervention.Intervention.end_date}`
+                              : 'Ongoing'
                           }}
                         </v-chip>
                       </v-col>
@@ -228,56 +225,7 @@
             </div>
           </v-card>
 
-          colony<!-- Dialog for Adding/Editing Interventions -->
-          <v-dialog v-model="interventionDialog.show" max-width="600">
-            <v-card>
-              <v-card-title class="text-h6"
-                >{{ interventionDialog.editing ? 'Edit' : 'Add' }} Intervention</v-card-title
-              >
-              <v-card-text>
-                <v-form>
-                  <v-text-field
-                    label="Intervention Name"
-                    v-model="interventionDialog.data.name"
-                    required
-                  />
-                  <v-text-field
-                    label="Focus Area"
-                    v-model="interventionDialog.data.focus_area"
-                    required
-                  />
-                  <v-text-field
-                    label="Tier Level"
-                    v-model="interventionDialog.data.tier_level"
-                    type="number"
-                    required
-                  />
-                  <v-text-field
-                    label="Frequency"
-                    v-model="interventionDialog.data.frequency"
-                    required
-                  />
-                  <v-textarea label="Notes" v-model="interventionDialog.data.notes" rows="3" />
-                  <v-text-field
-                    label="Start Date"
-                    v-model="interventionDialog.data.start_date"
-                    type="date"
-                    required
-                  />
-                  <v-text-field
-                    label="End Date (optional)"
-                    v-model="interventionDialog.data.end_date"
-                    type="date"
-                  />
-                </v-form>
-              </v-card-text>
-              <v-card-actions>
-                <v-spacer />
-                <v-btn text @click="interventionDialog.show = false">Cancel</v-btn>
-                <v-btn color="primary" @click="saveIntervention">Save</v-btn>
-              </v-card-actions>
-            </v-card>
-          </v-dialog>
+          <!-- Dialog for Adding/Editing Interventions -->
         </v-col>
       </v-row>
     </v-container>
@@ -312,55 +260,11 @@ export default defineComponent({
     }
   },
   methods: {
-    openAddInterventionDialog() {
-      this.interventionDialog.editing = false
-      this.interventionDialog.data = {
-        name: '',
-        focus_area: '',
-        tier_level: '',
-        frequency: '',
-        notes: '',
-        start_date: new Date().toISOString().split('T')[0], // Set to current date
-        end_date: '',
-      }
-      this.interventionDialog.show = true
-    },
-    openEditInterventionDialog(intervention) {
-      this.interventionDialog.editing = true
-      this.interventionDialog.data = {
-        ...intervention,
-        start_date: intervention.start_date
-          ? intervention.start_date.substring(0, 10)
-          : new Date().toISOString().split('T')[0],
-        end_date: intervention.end_date ? intervention.end_date.substring(0, 10) : '',
-      }
-      this.interventionDialog.show = true
-    },
-    async saveIntervention() {
-      const studentId = this.$route.params.id
-      const interventionData = { studentId: '2', ...this.interventionDialog.data }
-      const endpoint = this.interventionDialog.editing
-        ? `http://localhost:3000/mtss/notes`
-        : `http://localhost:3000/mtss/student-tier`
-
-      try {
-        if (this.interventionDialog.editing) {
-          await axios.put(endpoint, {notes: interventionData.notes})
-        } else {
-          console.log(interventionData)
-          await axios.post(endpoint, interventionData)
-        }
-        await this.fetchStudent() // Refresh student data after save
-      } catch (e) {
-        console.error('Error saving intervention:', e)
-      } finally {
-        this.interventionDialog.show = false
-      }
-    },
     async fetchStudent() {
       const studentId = this.$route.params.id
       try {
         const res = await axios.get(`http://localhost:3000/profile/${studentId}`)
+        console.log(res.data)
         this.student = res.data
         this.iepStatus = res.data?.iepStatus || ''
         this.attendancePercentage = res.data?.attendance?.presentPercentage || 0
