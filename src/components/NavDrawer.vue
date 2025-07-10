@@ -169,10 +169,7 @@ const dashboards = [
 ]
 
 const admin = [
-  { title: 'Upload Questions', to: '/upload', icon: 'mdi-upload' },
-  { title: 'Create Assessment', to: '/createAssessment', icon: 'mdi-file-document-edit-outline' },
-  { title: 'Score Importer', to: '/scoreImporter', icon: 'mdi-upload' },
-  { title: 'Band Editor', to: '/bandEditor', icon: 'mdi-edit' },
+  { title: 'Create Assessment', to: '/assessments', icon: 'mdi-file-document-edit-outline' },
 ]
 
 const logout = () => {

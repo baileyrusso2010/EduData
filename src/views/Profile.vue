@@ -30,14 +30,11 @@
                 <v-list-item-title><strong>Grade:</strong> {{ student.grade }}</v-list-item-title>
               </v-list-item>
               <v-list-item>
-                <v-list-item-title><strong>School:</strong> {{ student.school }}</v-list-item-title>
-              </v-list-item>
-              <v-list-item>
-                <v-list-item-title><strong>DOB:</strong> {{ student.dob }}</v-list-item-title>
+                <v-list-item-title><strong>Email:</strong> {{ student.email }}</v-list-item-title>
               </v-list-item>
               <v-list-item>
                 <v-list-item-title
-                  ><strong>Guardian:</strong> {{ student.guardian }}</v-list-item-title
+                  ><strong>Ethnicity:</strong> {{ student.ethnicity }}</v-list-item-title
                 >
               </v-list-item>
             </v-list>
@@ -58,7 +55,7 @@
             <v-col cols="12" sm="4">
               <v-card class="pa-4 elevation-3 rounded-lg text-center">
                 <div class="text-caption text-medium-emphasis">Behavior Incidents</div>
-                <h2 class="text-h3 text-warning mt-2">{{ student.behaviors?.length }}</h2>
+                <h2 class="text-h3 text-warning mt-2">{{ behaviorIncidents }}</h2>
                 <div class="text-caption">This Year</div>
               </v-card>
             </v-col>
@@ -152,38 +149,41 @@
             </div>
           </v-card>
 
-          <!-- MTSS Interventions Section -->
           <v-card class="mt-6 pa-6 elevation-2 rounded-xl">
             <v-card-title class="d-flex justify-space-between align-center">
               <span class="text-h6">MTSS Interventions</span>
             </v-card-title>
             <v-divider class="my-4" />
 
-            <div v-if="student.StudentInterventions?.length">
+            <div v-if="interventions?.length">
               <v-timeline align="start" dense>
                 <v-timeline-item
-                  v-for="(intervention, i) in student.StudentInterventions.filter(
-                    (i) => !i.end_date,
-                  )"
-                  :key="i"
+                  v-for="(tier, i) in interventions[0].student_tier"
+                  :key="tier.id"
                   color="green"
                   icon="mdi-lifebuoy"
                 >
                   <template #opposite>
                     <div class="text-caption text-medium-emphasis">
-                      {{ intervention.start_date.substring(0, 10) }}
+                      {{ tier.assigned_date.substring(0, 10) }}
                     </div>
                   </template>
 
                   <v-card class="pa-4" outlined rounded="xl">
                     <v-card-title class="text-h6 mb-2">
                       <v-icon color="primary" class="me-2">mdi-heart-pulse</v-icon>
-                      {{ intervention.name }}
+                      {{
+                        tier.interventions.length > 0
+                          ? tier.interventions[0].name
+                          : 'Unnamed Intervention'
+                      }}
                     </v-card-title>
 
                     <v-card-subtitle class="text-caption text-medium-emphasis mb-2">
-                      Tier {{ intervention.tier_level }} — Focus:
-                      {{ intervention.Intervention.focus_area }}
+                      Tier {{ tier.tierId }} — Focus:
+                      {{
+                        tier.interventions.length > 0 ? tier.interventions[0].focus_area : 'Unknown'
+                      }}
                     </v-card-subtitle>
 
                     <v-row>
@@ -193,35 +193,34 @@
                           class="ma-1 py-3 px-4"
                           text-color="blue darken-3"
                         >
-                          <strong>Frequency:</strong> {{ intervention.Intervention.frequency }}
+                          <strong>Frequency:</strong>
+                          {{
+                            tier.interventions.length > 0 ? tier.interventions[0].frequency : 'N/A'
+                          }}
                         </v-chip>
                       </v-col>
                       <v-col cols="12" sm="6">
-                        <v-chip
-                          :color="intervention.end_date ? 'grey lighten-4' : 'green lighten-4'"
-                          class="ma-1 py-3 px-4"
-                          text-color="black"
-                        >
-                          {{
-                            intervention.end_date
-                              ? `Ended: ${intervention.Intervention.end_date}`
-                              : 'Ongoing'
-                          }}
+                        <v-chip color="green lighten-4" class="ma-1 py-3 px-4" text-color="black">
+                          {{ tier.end_date ? 'Ended' : 'Ongoing' }}
                         </v-chip>
                       </v-col>
                     </v-row>
 
                     <v-divider class="my-2" />
                     <div class="text-caption text-medium-emphasis">
-                      Additional Notes: {{ intervention.notes || 'No notes provided.' }}
+                      Additional Notes:
+                      {{
+                        tier.interventions.length > 0
+                          ? tier.interventions[0].description
+                          : 'No notes provided.'
+                      }}
                     </div>
                   </v-card>
                 </v-timeline-item>
               </v-timeline>
             </div>
-
-            <div v-else class="text-caption text-medium-emphasis">
-              No active interventions assigned.
+            <div v-else>
+              <p>No interventions available.</p>
             </div>
           </v-card>
 
@@ -244,36 +243,50 @@ export default defineComponent({
       loading: true,
       iepStatus: '',
       attendancePercentage: 0,
-      interventionDialog: {
-        show: false,
-        editing: false,
-        data: {
-          name: '',
-          focus_area: '',
-          tier_level: '',
-          frequency: '',
-          notes: '',
-          start_date: '',
-          end_date: '',
-        },
-      },
+      behaviorIncidents: 0,
+      interventions: [],
     }
   },
   methods: {
     async fetchStudent() {
       const studentId = this.$route.params.id
       try {
-        const res = await axios.get(`http://localhost:3000/profile/${studentId}`)
-        console.log(res.data)
-        this.student = res.data
-        this.iepStatus = res.data?.iepStatus || ''
-        this.attendancePercentage = res.data?.attendance?.presentPercentage || 0
+        this.loading = true
 
+        const results = await Promise.allSettled([
+          axios.get(`http://localhost:3000/profile/${studentId}`).then((res) => res.data),
+          axios
+            .get(`http://localhost:3000/mtss/student-tiers/${studentId}?active=0`)
+            .then((res) => res.data),
+          axios.get(`http://localhost:3000/grades/${studentId}`).then((res) => res.data),
+          axios
+            .get(`http://localhost:3000/attendance/summary/${studentId}`)
+            .then((res) => res.data),
+        ])
+
+        const [profileResult, tierResult, gradesResult, attendanceResult] = results
+
+        const profile = profileResult.status === 'fulfilled' ? profileResult.value : {}
+        const tier = tierResult.status === 'fulfilled' ? tierResult.value : []
+        const grades = gradesResult.status === 'fulfilled' ? gradesResult.value : []
+        const attendance = attendanceResult.status === 'fulfilled' ? attendanceResult.value : {}
+
+        this.student = profile
+        this.iepStatus = profile?.iepStatus || ''
+        this.attendancePercentage =
+          attendance?.statusPercentages?.find((s) => s.status === 'present')?.percentage || 0
+
+        this.interventions = tier || []
+
+        // Gradebook logic remains unchanged
         const gradeMap = {}
-        for (const g of res.data.grades || []) {
-          if (!gradeMap[g.course]) {
-            gradeMap[g.course] = {
-              class: g.course,
+
+        for (const enrollment of grades || []) {
+          const courseName = enrollment.Section?.Course?.name || 'Unknown Course'
+
+          if (!gradeMap[courseName]) {
+            gradeMap[courseName] = {
+              class: courseName,
               q1: 'N/A',
               q2: 'N/A',
               q3: 'N/A',
@@ -286,16 +299,28 @@ export default defineComponent({
             }
           }
 
-          if (g.task === 'Quarter') {
-            if (g.term === 'Q1') gradeMap[g.course].q1 = `${g.score}%`
-            else if (g.term === 'Q2') gradeMap[g.course].q2 = `${g.score}%`
-            else if (g.term === 'Q3') gradeMap[g.course].q3 = `${g.score}%`
-            else if (g.term === 'Q4') gradeMap[g.course].q4 = `${g.score}%`
-          } else if (g.task === 'Interim') {
-            if (g.term === 'Q1') gradeMap[g.course].five_week = `${g.score}%`
-            else if (g.term === 'Q2') gradeMap[g.course].ten_week = `${g.score}%`
-            else if (g.term === 'Q3') gradeMap[g.course].fifteen_week = `${g.score}%`
-            else if (g.term === 'Q4') gradeMap[g.course].twenty_week = `${g.score}%`
+          for (const g of enrollment.Grades || []) {
+            const term = g.Term?.name
+            const task = g.Task?.type
+            const scoreStr = `${g.score}%`
+
+            if (task === 'Final Grade') {
+              if (term === 'Q1') gradeMap[courseName].q1 = scoreStr
+              else if (term === 'Q2') gradeMap[courseName].q2 = scoreStr
+              else if (term === 'Q3') gradeMap[courseName].q3 = scoreStr
+              else if (term === 'Q4') gradeMap[courseName].q4 = scoreStr
+            } else if (task === 'Interim') {
+              if (term === 'Q1') gradeMap[courseName].five_week = scoreStr
+              else if (term === 'Q2') gradeMap[courseName].ten_week = scoreStr
+              else if (term === 'Q3') gradeMap[courseName].fifteen_week = scoreStr
+              else if (term === 'Q4') gradeMap[courseName].twenty_week = scoreStr
+            } else {
+              gradeMap[courseName].assessments.push({
+                title: task || 'Other',
+                date: g.Term?.school_year || '',
+                score: scoreStr,
+              })
+            }
           }
         }
 
@@ -310,15 +335,14 @@ export default defineComponent({
       console.log('Open assessment modal:', assessment)
     },
     getGradeBackground(values) {
-      // Extract numeric grades from values (e.g., "Q1: 85%" or "5W: 90%")
       const grades = values
         .filter((val) => val.includes('%'))
         .map((val) => parseFloat(val.split(': ')[1]))
-      if (grades.length === 0) return 'linear-gradient(135deg, #f5f5f5, #e0e0e0)' // Default for N/A
+      if (grades.length === 0) return 'linear-gradient(135deg, #f5f5f5, #e0e0e0)' // Default
       const avgGrade = grades.reduce((sum, grade) => sum + grade, 0) / grades.length
-      if (avgGrade >= 80) return 'linear-gradient(135deg, #e8f5e9, #c8e6c9)' // Green for high grades
-      if (avgGrade >= 60) return 'linear-gradient(135deg, #fff3e0, #ffe0b2)' // Yellow for medium grades
-      return 'linear-gradient(135deg, #ffebee, #ffcdd2)' // Red for low grades
+      if (avgGrade >= 80) return 'linear-gradient(135deg, #e8f5e9, #c8e6c9)'
+      if (avgGrade >= 60) return 'linear-gradient(135deg, #fff3e0, #ffe0b2)'
+      return 'linear-gradient(135deg, #ffebee, #ffcdd2)'
     },
     getGradeTextClass(value) {
       if (!value.includes('%')) return 'text-grey'

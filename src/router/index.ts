@@ -5,16 +5,14 @@ import Attendance from '../views/Attendance.vue'
 import Profile from '../views/Profile.vue'
 import HomePage from '../views/HomePage.vue'
 import PageNotFound from '../views/PageNotFound.vue'
-import UploadAssessment from '../views/UploadAssessment.vue'
 import StudentSearch from '../views/StudentSearch.vue'
 import ClassFinder from '../views/ClassFinder.vue'
 import ClassView from '../views/ClassView.vue'
-import CreateAssessment from '../views/CreateAssessment.vue'
 import DataIngest from '../views/DataIngest.vue'
-import ScoreImporter from '../views/ScoreImporter.vue'
-import BandEditor from '../views/BandEditor.vue'
+import BandEditor from '../views/assessments/BandEditor.vue'
 import ClassRoomPerofrmance from '../views/ClassRoomPerofrmance.vue'
 import StudentInterventions from '../views/StudentInterventions.vue'
+import AssessmentHome from '../views/assessments/AssessmentHome.vue'
 
 const routes = [
   {
@@ -36,10 +34,6 @@ const routes = [
     props: true,
   },
   {
-    path: '/upload',
-    component: UploadAssessment,
-  },
-  {
     path: '/student_search',
     component: StudentSearch,
   },
@@ -52,20 +46,12 @@ const routes = [
     component: ClassView,
   },
   {
-    path: '/createAssessment',
-    component: CreateAssessment,
-  },
-  {
-    path: '/scoreImporter',
-    component: ScoreImporter,
+    path: '/assessments',
+    component: AssessmentHome,
   },
   {
     path: '/data',
     component: DataIngest,
-  },
-  {
-    path: '/bandEditor',
-    component: BandEditor,
   },
   {
     path: '/classPerformance',
