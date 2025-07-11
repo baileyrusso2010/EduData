@@ -13,6 +13,11 @@ import BandEditor from '../views/assessments/BandEditor.vue'
 import ClassRoomPerofrmance from '../views/ClassRoomPerofrmance.vue'
 import StudentInterventions from '../views/StudentInterventions.vue'
 import AssessmentHome from '../views/assessments/AssessmentHome.vue'
+// import Support from '../views/Support.vue'
+import Updates from '../views/Updates.vue'
+import ExecutiveDashboard from '../views/ExecutiveDashboard.vue'
+import StudentProfile from '../views/StudentProfile.vue'
+import StudentJeopardy from '../views/StudentJeopardy.vue'
 
 const routes = [
   {
@@ -60,6 +65,10 @@ const routes = [
   {
     path: '/studentIntervention/:studentId',
     component: StudentInterventions,
+  },
+  {
+    path: '/support',
+    component: StudentJeopardy,
   },
   {
     path: '/:pathMatch(.*)*',
