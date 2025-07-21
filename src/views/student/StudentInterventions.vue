@@ -190,12 +190,11 @@
 
 <script setup>
 import { ref, computed, onMounted } from 'vue'
-import PieChart from './PieChart.vue'
 import axios from 'axios'
 import { useRoute } from 'vue-router'
 
 const route = useRoute()
-const studentId = route.params.studentId
+const studentId = route.params.id
 const tiers = ref([])
 const editDialog = ref(false)
 const editItem = ref({})

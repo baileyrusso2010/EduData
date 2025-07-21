@@ -1,10 +1,15 @@
 <template>
+  <!-- Floating Edge Toggle Button -->
+  <!-- <v-btn icon class="edge-toggle-btn" @click="toggleDrawer" :class="{ 'drawer-open': drawer }">
+    <v-icon>{{ drawer ? 'mdi-chevron-left' : 'mdi-menu' }}</v-icon>
+  </v-btn> -->
+
   <v-navigation-drawer
     v-model="drawer"
     app
     :temporary="$vuetify.display.smAndDown"
     width="280"
-    class="elevation-2"
+    class="elevation-2 nav-drawer"
   >
     <!-- Drawer Header -->
     <v-sheet color="primary" class="pa-4">
@@ -13,11 +18,6 @@
           <h2 class="text-h6 font-weight-bold white--text">Chalk Records</h2>
           <p class="text-caption white--text mb-1">Staff Dashboard</p>
           <p class="text-caption white--text mb-0">v{{ packageVersion }}</p>
-        </v-col>
-        <v-col cols="auto" v-if="$vuetify.display.smAndDown">
-          <v-btn icon small @click="drawer = !drawer" class="white--text">
-            <v-icon>mdi-close</v-icon>
-          </v-btn>
         </v-col>
       </v-row>
     </v-sheet>
@@ -129,56 +129,72 @@
           </v-list-item-content>
         </v-list-item>
       </v-list-group>
-      <!-- Logout Button -->
-      <!-- <v-list-item @click="logout" class="mt-2 nav-item">
-        <v-list-item-icon class="mr-3">
-          <v-icon size="20">mdi-logout</v-icon>
-        </v-list-item-icon>
-        <v-list-item-content>
-          <v-list-item-title class="text-body-2">Logout</v-list-item-title>
-        </v-list-item-content>
-      </v-list-item> -->
     </v-list>
+
+    <!-- Settings Icon Bottom Right -->
+    <v-btn icon class="settings-btn" @click="goToSettings">
+      <v-icon size="28">mdi-cog-outline</v-icon>
+    </v-btn>
   </v-navigation-drawer>
 </template>
 
 <script setup>
 import { ref } from 'vue'
+import { useRouter } from 'vue-router'
 import packageJson from '../../package.json'
 
 const packageVersion = packageJson.version
 const drawer = ref(true)
-const generalExpanded = ref(true) // Controls General group collapse state
-const studentExpanded = ref(true) // Controls Student Management group collapse state
-const dashboardsExpanded = ref(true) // Controls Student Management group collapse state
-const adminExpanded = ref(true) // Controls Student Management group collapse state
+const generalExpanded = ref(true)
+const studentExpanded = ref(true)
+const dashboardsExpanded = ref(true)
+const adminExpanded = ref(true)
+const router = useRouter()
 
-// Organized navigation items into groups
+const toggleDrawer = () => {
+  drawer.value = !drawer.value
+}
+
+const goToSettings = () => {
+  router.push('/admin/permissions')
+}
+
+// Updated navigation items to match new endpoints/routes
 const generalItems = [
   { title: 'Home', to: '/', icon: 'mdi-home' },
-  { title: 'Search', to: '/student_search', icon: 'mdi-magnify' },
-  { title: 'Class Finder', to: '/ClassFinder', icon: 'mdi-domain' },
+  { title: 'Student Search', to: '/students', icon: 'mdi-magnify' },
 ]
 
-const studentItems = [{ title: 'Class View', to: '/ClassView', icon: 'mdi-view-list' }]
+const studentItems = [{ title: 'Student Jeopardy', to: '/students/jeopardy', icon: 'mdi-alert' }]
 
 const dashboards = [
-  { title: 'Attendance', to: '/attendance', icon: 'mdi-account-check-outline' },
-  { title: 'Data', to: '/data', icon: 'mdi-database-outline' },
-  { title: 'Class', to: '/classPerformance', icon: 'mdi-database-outline' },
+  { title: 'Executive Dashboard', to: '/dashboard', icon: 'mdi-view-dashboard' },
+  { title: 'Attendance', to: '/students/attendance', icon: 'mdi-account-check-outline' },
 ]
 
 const admin = [
-  { title: 'Create Assessment', to: '/assessments', icon: 'mdi-file-document-edit-outline' },
+  { title: 'Data Ingest', to: '/admin/data-ingest', icon: 'mdi-database-import' },
+  { title: 'Permissions', to: '/admin/permissions', icon: 'mdi-shield-account' },
 ]
-
-const logout = () => {
-  console.log('Logout clicked')
-  // Implement logout logic here
-}
 </script>
 
 <style scoped>
+.edge-toggle-btn {
+  position: fixed;
+  top: 16px;
+  left: 16px;
+  background-color: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(4px);
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  z-index: 1005; /* Above v-navigation-drawer */
+  transition: left 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+.edge-toggle-btn.drawer-open {
+  left: 250px; /* drawer width (280) + 16px */
+}
+
 .nav-item {
   transition: all 0.2s ease-in-out;
   border-left: 3px solid transparent;
@@ -211,9 +227,28 @@ const logout = () => {
 
 .v-navigation-drawer {
   border-right: 1px solid rgba(0, 0, 0, 0.12);
+  position: relative;
 }
 
 .v-list-group--active .group-header {
   background-color: rgba(0, 0, 0, 0.08);
+}
+
+.settings-btn {
+  position: absolute;
+  right: 16px;
+  bottom: 16px;
+  background: white;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  border-radius: 50%;
+  z-index: 2;
+  transition: background 0.2s;
+}
+.settings-btn:hover {
+  background: #f5f5f5;
+}
+
+.nav-drawer {
+  min-height: 100vh;
 }
 </style>
