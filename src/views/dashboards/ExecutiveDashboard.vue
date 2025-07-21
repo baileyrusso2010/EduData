@@ -10,7 +10,30 @@
               {{ districtInfo.name }} - {{ getCurrentDate() }}
             </p>
           </div>
-          <div class="d-flex align-center">
+          <div class="d-flex align-center gap-3">
+            <!-- School Selector -->
+            <v-select
+              v-model="selectedSchool"
+              :items="schoolOptions"
+              item-title="name"
+              item-value="value"
+              label="Select School"
+              outlined
+              dense
+              style="min-width: 250px"
+              prepend-inner-icon="mdi-school"
+              clearable
+              :loading="isLoadingSchools"
+              @update:model-value="onSchoolChange"
+            >
+              <template v-slot:selection="{ item }">
+                <v-chip color="primary" size="small">
+                  <v-icon start size="small">{{ item.raw.icon }}</v-icon>
+                  {{ item.raw.name }}
+                </v-chip>
+              </template>
+            </v-select>
+
             <v-chip color="success" class="mr-3">
               <v-icon class="mr-2">mdi-update</v-icon>
               Last Updated: {{ lastUpdated }}
@@ -346,6 +369,7 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import { Line, Bar, Pie, Doughnut } from 'vue-chartjs'
+import axios from 'axios'
 
 // Data interfaces
 interface KeyMetric {
@@ -366,6 +390,15 @@ interface SchoolData {
   staffCount: number
 }
 
+interface School {
+  id: number
+  name: string
+  type?: string
+  principal?: string
+  enrollment?: number
+  // Add other properties as needed based on your API response
+}
+
 // Reactive data
 const districtInfo = ref({
   name: 'Riverside Unified School District',
@@ -375,6 +408,14 @@ const districtInfo = ref({
 
 const lastUpdated = ref('2 hours ago')
 const overallAttendance = ref(92.3)
+const selectedSchool = ref('all')
+const schools = ref<School[]>([])
+const isLoadingSchools = ref(false)
+
+// School selector options - will be populated from API
+const schoolOptions = ref([
+  { name: 'All Schools (District View)', value: 'all', icon: 'mdi-view-dashboard' },
+])
 
 const keyMetrics = ref<KeyMetric[]>([
   {
@@ -681,9 +722,60 @@ const getCurrentDate = (): string => {
   })
 }
 
+const fetchSchools = async (): Promise<void> => {
+  try {
+    isLoadingSchools.value = true
+    const response = await axios.get('http://localhost:3000/school/')
+    schools.value = response.data
+
+    // Transform API data into dropdown options
+    const apiSchoolOptions = schools.value.map((school) => ({
+      name: school.name,
+      value: `school-${school.id}`,
+      icon: getSchoolIcon(school.type || 'school'),
+    }))
+
+    // Combine with "All Schools" option
+    schoolOptions.value = [
+      { name: 'All Schools (District View)', value: 'all', icon: 'mdi-view-dashboard' },
+      ...apiSchoolOptions,
+    ]
+
+    console.log('Schools loaded:', schools.value.length)
+  } catch (error) {
+    console.error('Failed to fetch schools:', error)
+    // Keep default options if API fails
+  } finally {
+    isLoadingSchools.value = false
+  }
+}
+
+const getSchoolIcon = (schoolType: string): string => {
+  switch (schoolType?.toLowerCase()) {
+    case 'elementary':
+      return 'mdi-school'
+    case 'middle':
+    case 'middle school':
+      return 'mdi-school-outline'
+    case 'high':
+    case 'high school':
+      return 'mdi-school'
+    default:
+      return 'mdi-school'
+  }
+}
+
+const onSchoolChange = (schoolValue: string | null): void => {
+  selectedSchool.value = schoolValue || 'all'
+  lastUpdated.value = 'Just now'
+  console.log('Selected school:', selectedSchool.value)
+  // Here you would typically fetch school-specific data
+}
+
 const refreshData = (): void => {
   lastUpdated.value = 'Just now'
   // In a real app, this would fetch fresh data from the API
+  fetchSchools()
 }
 
 const viewAlert = (alert: any): void => {
@@ -693,6 +785,7 @@ const viewAlert = (alert: any): void => {
 
 onMounted(() => {
   // Initialize dashboard data
+  fetchSchools()
   refreshData()
 })
 </script>
@@ -712,5 +805,18 @@ onMounted(() => {
 
 .v-timeline-item {
   padding-bottom: 16px;
+}
+
+.gap-3 {
+  gap: 12px;
+}
+
+.v-select {
+  background-color: rgba(255, 255, 255, 0.95);
+  border-radius: 8px;
+}
+
+.v-chip {
+  font-weight: 500;
 }
 </style>

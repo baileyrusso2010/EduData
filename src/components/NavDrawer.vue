@@ -53,14 +53,14 @@
 
       <!-- Student Management Group -->
       <v-list-group v-model="studentExpanded" color="primary">
-        <template v-slot:activator="{ props }">
+        <!-- <template v-slot:activator="{ props }">
           <v-list-item v-bind="props" class="group-header">
             <v-list-item-icon class="mr-3">
               <v-icon size="20">mdi-school</v-icon>
             </v-list-item-icon>
             <v-list-item-title class="text-subtitle-2">Student Management</v-list-item-title>
           </v-list-item>
-        </template>
+        </template> -->
         <v-list-item
           v-for="item in studentItems"
           :key="item.title"
@@ -165,7 +165,7 @@ const generalItems = [
   { title: 'Student Search', to: '/students', icon: 'mdi-magnify' },
 ]
 
-const studentItems = [{ title: 'Student Jeopardy', to: '/students/jeopardy', icon: 'mdi-alert' }]
+// const studentItems = [{ title: 'Student Jeopardy', to: '/students/jeopardy', icon: 'mdi-alert' }]
 
 const dashboards = [
   { title: 'Executive Dashboard', to: '/dashboard', icon: 'mdi-view-dashboard' },

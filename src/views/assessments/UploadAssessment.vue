@@ -1,70 +1,120 @@
 <template>
-  <v-container class="py-10">
-    <v-card class="pa-6 elevation-3 rounded-xl">
-      <v-card-title class="text-h5 mb-4">📥 Question Importer</v-card-title>
+  <v-container class="pa-6">
+    <v-card class="elevation-4 rounded-lg">
+      <v-card-title class="text-h5 deep-purple white--text d-flex align-center pa-6">
+        <v-icon class="mr-3" size="28">mdi-file-upload</v-icon>
+        Upload Assessment Questions
+      </v-card-title>
 
-      <!-- Assessment Dropdown -->
-      <v-select
-        v-model="selectedAssessmentId"
-        :items="assessments"
-        item-title="test_name"
-        item-value="id"
-        label="Select Assessment"
-        :loading="isLoading"
-        :disabled="isLoading"
-        class="mb-4"
-        outlined
-      />
+      <v-card-text class="pa-6">
+        <!-- Assessment Dropdown -->
+        <v-select
+          v-model="selectedAssessmentId"
+          :items="assessments"
+          item-title="test_name"
+          item-value="id"
+          label="Select Assessment"
+          :loading="isLoading"
+          :disabled="isLoading"
+          outlined
+          prepend-inner-icon="mdi-clipboard-check"
+          class="mb-4"
+        />
 
-      <!-- File Upload -->
-      <v-file-input
-        label="Upload CSV File"
-        accept=".csv"
-        @change="handleQuestionsUpload"
-        prepend-icon="mdi-upload"
-        outlined
-        dense
-        class="mb-6"
-      />
+        <!-- File Upload -->
+        <v-file-input
+          label="Upload CSV File (Questions)"
+          accept=".csv"
+          @change="handleQuestionsUpload"
+          prepend-inner-icon="mdi-file-upload"
+          outlined
+          class="mb-6"
+          hint="CSV format: question_num, text, subscore_type, category, etc."
+          persistent-hint
+        />
 
-      <!-- Preview Section -->
-      <div v-if="parsedQuestions.length > 0">
-        <v-card class="mb-4 pa-4 elevation-1" color="grey-lighten-4">
-          <v-card-title class="text-h6"
-            >Preview ({{ parsedQuestions.length }} Questions)</v-card-title
-          >
-          <v-divider class="my-2" />
-          <v-list>
-            <v-list-item v-for="(q, index) in parsedQuestions" :key="index" class="px-0">
-              <v-list-item-content>
-                <strong>Q{{ q.question_num }}:</strong> {{ q.text }}
-                <div class="mt-1">
-                  <v-chip v-if="q.subscore_type" color="blue lighten-4" class="mr-2" label small>
-                    Subscore: {{ q.subscore_type }}
-                  </v-chip>
-                  <v-chip v-if="q.category" color="green lighten-4" label small>
-                    Category: {{ q.category }}
-                  </v-chip>
-                  <span v-if="!q.subscore_type && !q.category" class="text-caption text-grey">
-                    No subscore or category
-                  </span>
-                </div>
-              </v-list-item-content>
-            </v-list-item>
-          </v-list>
-        </v-card>
-      </div>
+        <!-- Preview Section -->
+        <div v-if="parsedQuestions.length > 0" class="mt-6">
+          <v-card class="elevation-2 rounded-lg" color="grey-lighten-4">
+            <v-card-title class="text-h6 pa-4">
+              <v-icon class="mr-2" color="primary">mdi-eye</v-icon>
+              Preview Questions ({{ parsedQuestions.length }} Total)
+            </v-card-title>
+            <v-divider></v-divider>
+            <v-card-text class="pa-4">
+              <v-list class="bg-transparent">
+                <v-list-item
+                  v-for="(q, index) in parsedQuestions.slice(0, 5)"
+                  :key="index"
+                  class="px-0 mb-3"
+                  rounded
+                >
+                  <v-list-item-content>
+                    <v-row>
+                      <v-col cols="12">
+                        <div class="d-flex align-center mb-2">
+                          <v-chip color="primary" size="small" class="mr-2">
+                            Q{{ q.question_num }}
+                          </v-chip>
+                          <span class="font-weight-medium">{{ q.text }}</span>
+                        </div>
+                        <div class="d-flex flex-wrap gap-2">
+                          <v-chip
+                            v-if="q.subscore_type"
+                            color="blue-lighten-2"
+                            size="small"
+                            variant="outlined"
+                          >
+                            <v-icon start size="small">mdi-tag</v-icon>
+                            Subscore: {{ q.subscore_type }}
+                          </v-chip>
+                          <v-chip
+                            v-if="q.category"
+                            color="green-lighten-2"
+                            size="small"
+                            variant="outlined"
+                          >
+                            <v-icon start size="small">mdi-folder</v-icon>
+                            Category: {{ q.category }}
+                          </v-chip>
+                          <span
+                            v-if="!q.subscore_type && !q.category"
+                            class="text-caption text-grey"
+                          >
+                            No subscore or category assigned
+                          </span>
+                        </div>
+                      </v-col>
+                    </v-row>
+                  </v-list-item-content>
+                </v-list-item>
+                <v-list-item v-if="parsedQuestions.length > 5" class="text-center">
+                  <v-list-item-content>
+                    <div class="text-caption text-grey">
+                      ... and {{ parsedQuestions.length - 5 }} more questions
+                    </div>
+                  </v-list-item-content>
+                </v-list-item>
+              </v-list>
+            </v-card-text>
+          </v-card>
+        </div>
+      </v-card-text>
 
-      <!-- Submit Button -->
-      <v-btn
-        :loading="isSubmitting"
-        :disabled="!selectedAssessmentId || parsedQuestions.length === 0"
-        color="primary"
-        class="mt-2"
-        @click="submitQuestions"
-      >
-        Submit Questions
-      </v-btn>
+      <v-card-actions class="pa-6 pt-0">
+        <v-spacer></v-spacer>
+        <v-btn
+          color="deep-purple"
+          size="large"
+          :disabled="!selectedAssessmentId || parsedQuestions.length === 0"
+          :loading="isSubmitting"
+          @click="submitQuestions"
+          class="px-8"
+        >
+          <v-icon class="mr-2">mdi-check-circle</v-icon>
+          Upload Questions
+        </v-btn>
+      </v-card-actions>
     </v-card>
   </v-container>
 </template>
