@@ -20,38 +20,110 @@
                 </v-chip>
                 <v-chip color="white" text-color="primary" class="mr-2">
                   <v-icon class="mr-1">mdi-identifier</v-icon>
-                  ID: {{ student.studentId }}
+                  ID: {{ student.id }}
                 </v-chip>
-                <v-chip color="white" text-color="primary">
+                <!-- <v-chip color="white" text-color="primary">
                   <v-icon class="mr-1">mdi-calendar</v-icon>
                   Age: {{ student.age }}
-                </v-chip>
+                </v-chip> -->
               </div>
               <div class="text-body-1">
-                <strong>School:</strong> {{ student.school }} | <strong>Teacher:</strong>
-                {{ student.teacher }} | <strong>Counselor:</strong> {{ student.counselor }}
+                <strong>School:</strong> {{ student.school }} | <strong>Email:</strong>
+                {{ student.email }} | <strong>Counselor:</strong> {{ student.counselor }}
               </div>
+            </v-col>
+            <v-col cols="auto">
+              <v-btn color="warning" size="large" @click="openFlagDialog" class="mr-2">
+                <v-icon class="mr-2">mdi-flag-plus</v-icon>
+                Add Flag
+              </v-btn>
             </v-col>
           </v-row>
         </v-card>
       </v-col>
     </v-row>
 
-    <!-- Quick Stats Cards -->
-    <v-row class="mb-6">
-      <v-col cols="12" sm="6" md="3">
-        <v-card color="success" dark class="pa-4">
-          <v-card-title class="d-flex justify-space-between">
-            <span>GPA</span>
-            <v-icon>mdi-trending-up</v-icon>
+    <!-- Active Flags Section -->
+    <v-row class="mb-6" v-if="activeFlags && activeFlags.length > 0">
+      <v-col cols="12">
+        <v-card elevation="4" class="pa-4" color="orange-lighten-5">
+          <v-card-title class="d-flex align-center text-orange-darken-2">
+            <v-icon class="mr-2" color="orange-darken-2">mdi-flag-variant</v-icon>
+            Active Flags ({{ activeFlags.length }})
           </v-card-title>
           <v-card-text>
-            <div class="text-h3 font-weight-bold">{{}}%</div>
-            <div class="text-body-2">Current Semester</div>
+            <v-row dense>
+              <v-col v-for="flag in activeFlags" :key="flag.id" cols="12" sm="6" md="4">
+                <v-card
+                  class="pa-3 mb-2"
+                  :color="getFlagColor(flag.flag_type)"
+                  variant="outlined"
+                  elevation="2"
+                >
+                  <div class="d-flex justify-space-between align-start">
+                    <div class="flex-grow-1">
+                      <v-chip
+                        :color="getFlagColor(flag.flag_type)"
+                        size="small"
+                        class="mb-2"
+                        variant="flat"
+                      >
+                        <v-icon start size="small">{{ getFlagIcon(flag.flag_type) }}</v-icon>
+                        {{ flag.flag_type }}
+                      </v-chip>
+                      <div class="text-body-2 mb-2">
+                        <strong>Reason:</strong> {{ flag.flag_reason }}
+                      </div>
+                      <div class="text-caption text-grey-darken-1">
+                        Added: {{ formatDate(flag.created_at) }}
+                      </div>
+                    </div>
+                    <v-btn
+                      icon
+                      size="small"
+                      color="success"
+                      variant="text"
+                      @click="removeFlag(flag.id)"
+                      title="Resolve this flag"
+                    >
+                      <v-icon size="small">mdi-check</v-icon>
+                    </v-btn>
+                  </div>
+                </v-card>
+              </v-col>
+            </v-row>
           </v-card-text>
         </v-card>
       </v-col>
-      <v-col cols="12" sm="6" md="3">
+    </v-row>
+
+    <!-- Quick Stats Cards -->
+    <v-row class="mb-6">
+      <v-col cols="12" sm="8" md="4">
+        <v-card color="success" dark class="pa-4">
+          <v-card-title class="d-flex justify-space-between">
+            <span>Quarter Avg.</span>
+            <v-icon>mdi-trending-up</v-icon>
+          </v-card-title>
+          <v-card-text>
+            <div class="text-h3 font-weight-bold">
+              {{
+                quarterAverages[0] && quarterAverages[0].average != null
+                  ? quarterAverages[0].average.toFixed(2)
+                  : 'N/A'
+              }}%
+            </div>
+            <div class="text-body-2">
+              {{
+                quarterAverages[0] && quarterAverages[0].term != null
+                  ? quarterAverages[0].term
+                  : 'N/A'
+              }}
+            </div>
+          </v-card-text>
+        </v-card>
+      </v-col>
+      <v-col cols="12" sm="8" md="4">
         <v-card color="info" dark class="pa-4">
           <v-card-title class="d-flex justify-space-between">
             <span>Attendance</span>
@@ -63,29 +135,15 @@
           </v-card-text>
         </v-card>
       </v-col>
-      <v-col cols="12" sm="6" md="3">
+      <v-col cols="12" sm="8" md="4">
         <v-card dark class="pa-4">
           <v-card-title class="d-flex justify-space-between">
             <span>MTSS Tier</span>
             <v-icon>mdi-layers</v-icon>
           </v-card-title>
           <v-card-text>
-            <div class="text-h3 font-weight-bold">{{ 1 }}</div>
+            <div class="text-h3 font-weight-bold">{{ activeTierId }}</div>
             <div class="text-body-2">Current</div>
-          </v-card-text>
-        </v-card>
-      </v-col>
-      <v-col cols="12" sm="6" md="3">
-        <v-card color="warning" dark class="pa-4">
-          <v-card-title class="d-flex justify-space-between">
-            <span>Credits</span>
-            <v-icon>mdi-book-multiple</v-icon>
-          </v-card-title>
-          <v-card-text>
-            <div class="text-h3 font-weight-bold">
-              {{ student.creditsEarned }}/{{ student.creditsNeeded }}
-            </div>
-            <div class="text-body-2">For Graduation</div>
           </v-card-text>
         </v-card>
       </v-col>
@@ -105,7 +163,7 @@
             </v-tab>
             <v-tab value="mtss">
               <v-icon class="mr-2">mdi-account-check</v-icon>
-              Behavior
+              MTSS
             </v-tab>
           </v-tabs>
 
@@ -324,6 +382,57 @@
     </v-row>
   </v-container>
 
+  <!-- Flag Management Dialog -->
+  <v-dialog v-model="flagDialog" max-width="500px">
+    <v-card>
+      <v-card-title class="d-flex align-center">
+        <v-icon class="mr-2" color="warning">mdi-flag-plus</v-icon>
+        Add Student Flag
+      </v-card-title>
+
+      <v-card-text>
+        <v-form ref="flagForm" v-model="flagFormValid">
+          <v-select
+            v-model="newFlag.flag_type"
+            :items="flagTypes"
+            label="Flag Type"
+            outlined
+            required
+            :rules="[(v) => !!v || 'Flag type is required']"
+            prepend-inner-icon="mdi-flag"
+            class="mb-3"
+          />
+
+          <v-textarea
+            v-model="newFlag.flag_reason"
+            label="Flag Reason"
+            outlined
+            required
+            :rules="[(v) => !!v || 'Flag reason is required']"
+            rows="3"
+            prepend-inner-icon="mdi-text"
+            hint="Please provide a detailed reason for this flag"
+            persistent-hint
+          />
+        </v-form>
+      </v-card-text>
+
+      <v-card-actions>
+        <v-spacer />
+        <v-btn color="grey" variant="text" @click="closeFlagDialog"> Cancel </v-btn>
+        <v-btn
+          color="warning"
+          :disabled="!flagFormValid || isSubmittingFlag"
+          :loading="isSubmittingFlag"
+          @click="submitFlag"
+        >
+          <v-icon class="mr-2">mdi-flag-plus</v-icon>
+          Add Flag
+        </v-btn>
+      </v-card-actions>
+    </v-card>
+  </v-dialog>
+
   <!-- Assessment Details Modal -->
   <v-dialog v-model="assessmentDialog" max-width="800" scrollable>
     <v-card>
@@ -435,6 +544,29 @@ export default defineComponent({
       assessmentDialog: false,
       selectedAssessment: null,
       activeTab: 'academics', // Default active tab
+      activeTierId: null,
+      quarterAverages: [],
+      // Flag management
+      activeFlags: [],
+      flagDialog: false,
+      flagFormValid: false,
+      isSubmittingFlag: false,
+      newFlag: {
+        flag_type: '',
+        flag_reason: '',
+      },
+      flagTypes: [
+        'Academic Concern',
+        'Behavioral Alert',
+        'Attendance Issue',
+        'Health/Medical',
+        'Safety Concern',
+        'Special Needs',
+        'Family Situation',
+        'Emotional Support',
+        'Intervention Required',
+        'Monitoring Required',
+      ],
     }
   },
   methods: {
@@ -455,18 +587,31 @@ export default defineComponent({
           axios
             .get('http://localhost:3000/assessments/student/' + studentId)
             .then((res) => res.data),
+          axios
+            .get(`http://localhost:3000/grades/${studentId}/quarter-averages`)
+            .then((res) => res.data),
         ])
 
         console.log('Fetch results:', results)
 
-        const [profileResult, tierResult, gradesResult, attendanceResult, assessmentResult] =
-          results
+        const [
+          profileResult,
+          tierResult,
+          gradesResult,
+          attendanceResult,
+          assessmentResult,
+          quarterAvgResults,
+        ] = results
 
         const profile = profileResult.status === 'fulfilled' ? profileResult.value : {}
         const tier = tierResult.status === 'fulfilled' ? tierResult.value : []
         const grades = gradesResult.status === 'fulfilled' ? gradesResult.value : []
         const attendance = attendanceResult.status === 'fulfilled' ? attendanceResult.value : {}
         const assessments = assessmentResult.status === 'fulfilled' ? assessmentResult.value : []
+        const quarterAverages =
+          quarterAvgResults.status === 'fulfilled' ? quarterAvgResults.value : []
+
+        this.quarterAverages = quarterAverages
 
         this.assessments = assessments
 
@@ -476,6 +621,16 @@ export default defineComponent({
           attendance?.statusPercentages?.find((s) => s.status === 'present')?.percentage || 0
 
         this.interventions = tier || []
+        // Find active tier (no end_date) and save its tierId
+        let activeTierId = null
+        if (this.interventions?.length && Array.isArray(this.interventions[0].student_tier)) {
+          const activeTier = this.interventions[0].student_tier.find((tier) => !tier.end_date)
+          if (activeTier) {
+            activeTierId = activeTier.tierId
+          }
+        }
+        this.activeTierId = activeTierId
+        console.log('Active Tier ID:', this.activeTierId)
 
         // Gradebook logic remains unchanged
         const gradeMap = {}
@@ -517,11 +672,122 @@ export default defineComponent({
         }
 
         this.gradebook = Object.values(gradeMap)
+
+        // Fetch active flags
+        await this.fetchActiveFlags()
       } catch (e) {
         console.error('Error fetching student:', e)
       } finally {
         this.loading = false
       }
+    },
+    async fetchActiveFlags() {
+      try {
+        const studentId = this.$route.params.id
+        const response = await axios.get(`http://localhost:3000/flags/${studentId}`)
+        this.activeFlags = response.data || []
+        console.log('Active flags loaded:', this.activeFlags)
+      } catch (error) {
+        console.error('Error fetching flags:', error)
+        this.activeFlags = []
+      }
+    },
+    openFlagDialog() {
+      this.flagDialog = true
+      this.newFlag = {
+        flag_type: '',
+        flag_reason: '',
+      }
+    },
+    closeFlagDialog() {
+      this.flagDialog = false
+      this.newFlag = {
+        flag_type: '',
+        flag_reason: '',
+      }
+      if (this.$refs.flagForm) {
+        this.$refs.flagForm.reset()
+      }
+    },
+    async submitFlag() {
+      if (!this.flagFormValid) return
+
+      try {
+        this.isSubmittingFlag = true
+        const studentId = this.$route.params.id
+
+        const flagData = {
+          student_id: parseInt(studentId),
+          flag_type: this.newFlag.flag_type,
+          flag_reason: this.newFlag.flag_reason,
+        }
+
+        await axios.post('http://localhost:3000/flags', flagData)
+
+        // Refresh the flags list
+        await this.fetchActiveFlags()
+
+        // Close dialog and show success message
+        this.closeFlagDialog()
+
+        // You could add a snackbar success message here
+        console.log('Flag added successfully')
+      } catch (error) {
+        console.error('Error adding flag:', error)
+        // You could add error handling/snackbar here
+      } finally {
+        this.isSubmittingFlag = false
+      }
+    },
+    async removeFlag(flagId) {
+      try {
+        await axios.put(`http://localhost:3000/flags/${flagId}/end`)
+
+        // Refresh the flags list
+        await this.fetchActiveFlags()
+
+        console.log('Flag resolved successfully')
+      } catch (error) {
+        console.error('Error resolving flag:', error)
+      }
+    },
+    getFlagColor(flagType) {
+      const colorMap = {
+        'Academic Concern': 'orange',
+        'Behavioral Alert': 'red',
+        'Attendance Issue': 'amber',
+        'Health/Medical': 'pink',
+        'Safety Concern': 'deep-orange',
+        'Special Needs': 'purple',
+        'Family Situation': 'indigo',
+        'Emotional Support': 'cyan',
+        'Intervention Required': 'deep-purple',
+        'Monitoring Required': 'blue-grey',
+      }
+      return colorMap[flagType] || 'grey'
+    },
+    getFlagIcon(flagType) {
+      const iconMap = {
+        'Academic Concern': 'mdi-book-alert',
+        'Behavioral Alert': 'mdi-alert-octagon',
+        'Attendance Issue': 'mdi-calendar-alert',
+        'Health/Medical': 'mdi-medical-bag',
+        'Safety Concern': 'mdi-shield-alert',
+        'Special Needs': 'mdi-account-heart',
+        'Family Situation': 'mdi-home-alert',
+        'Emotional Support': 'mdi-heart',
+        'Intervention Required': 'mdi-hand-heart',
+        'Monitoring Required': 'mdi-eye-check',
+      }
+      return iconMap[flagType] || 'mdi-flag'
+    },
+    formatDate(dateString) {
+      if (!dateString) return 'N/A'
+      return new Date(dateString).toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric',
+      })
     },
     openAssessmentModal(assessment) {
       this.selectedAssessment = assessment

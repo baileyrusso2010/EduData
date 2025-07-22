@@ -6,7 +6,15 @@
         <v-card :class="['pa-4 mb-4', metric.color]" elevation="4">
           <v-card-title class="text-white">{{ metric.title }}</v-card-title>
           <v-card-text>
-            <h1 class="display-1 text-white">{{ metric.value }}</h1>
+            <h1 class="display-1 text-white">
+              <v-progress-circular
+                v-if="(index === 0 && isLoadingBehavior) || (index === 1 && isLoadingAttendance)"
+                indeterminate
+                color="white"
+                size="24"
+              ></v-progress-circular>
+              <span v-else>{{ metric.value }}</span>
+            </h1>
             <p class="text-white">{{ metric.description }}</p>
           </v-card-text>
         </v-card>
@@ -18,7 +26,7 @@
       <!-- Chart Card -->
       <v-col cols="12" sm="8">
         <v-card class="pa-4 mb-4" elevation="3" style="height: 600px">
-          <v-card-title class="text-primary">Passing Rate</v-card-title>
+          <v-card-title class="text-primary">Final Grade</v-card-title>
           <Line :data="data" />
         </v-card>
       </v-col>
@@ -108,6 +116,7 @@ import {
   LinearScale,
 } from 'chart.js'
 import { Line } from 'vue-chartjs'
+import axios from 'axios'
 
 ChartJS.register(
   CategoryScale,
@@ -126,17 +135,21 @@ export default {
   },
   data() {
     return {
+      behaviorCount: 0,
+      isLoadingBehavior: false,
+      attendanceRate: '0%',
+      isLoadingAttendance: false,
       metrics: [
         {
           title: 'Incidents Yesterday',
-          value: 5,
-          description: 'As of 10:11 AM EDT, May 28, 2025',
+          value: 0, // Will be updated from API
+          description: `As of ${new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}`,
           color: 'bg-red-darken-2',
         },
         {
           title: 'Attendance Rate',
-          value: '96.3%',
-          description: 'From May 21 to May 28, 2025',
+          value: '0%', // Will be updated from API
+          description: 'Current attendance summary',
           color: 'bg-green-darken-2',
         },
         {
@@ -162,25 +175,126 @@ export default {
         // repeat to fill virtual scroll if needed
       ],
       data: {
-        labels: ['March', 'April', 'May', 'June', 'July'],
-        datasets: [
-          {
-            label: 'Attendance Rate',
-            data: [92.1, 94, 93.9, 93, 92.7],
-            borderColor: 'rgb(75, 192, 192)',
-            tension: 0.5,
-          },
-          {
-            label: 'Full Day Attendance',
-            data: [90.1, 91.5, 92.8, 91.9, 92.2],
-            borderColor: 'rgb(255, 99, 132)',
-            tension: 0.5,
-          },
-        ],
+        labels: [],
+        datasets: [],
       },
     }
   },
+  async mounted() {
+    await Promise.all([
+      this.fetchBehaviorCount(),
+      this.fetchAttendanceSummary(),
+      this.fetchGradeScoresChart(),
+    ])
+  },
   methods: {
+    async fetchBehaviorCount() {
+      try {
+        this.isLoadingBehavior = true
+        // Get yesterday's date in MM-DD-YYYY format
+        const yesterday = new Date()
+        yesterday.setDate(yesterday.getDate() - 1)
+        const dateStr = yesterday.toLocaleDateString('en-US', {
+          month: '2-digit',
+          day: '2-digit',
+          year: 'numeric',
+        })
+
+        const response = await axios.get(`http://localhost:3000/behavior/count/day?date=${dateStr}`)
+        this.behaviorCount = response.data.count
+
+        // Update the metrics array with the fetched count
+        this.metrics[0].value = this.behaviorCount
+
+        console.log('Behavior count loaded:', this.behaviorCount)
+      } catch (error) {
+        console.error('Failed to fetch behavior count:', error)
+        // Keep default value if API fails
+        this.metrics[0].value = 'N/A'
+      } finally {
+        this.isLoadingBehavior = false
+      }
+    },
+    async fetchAttendanceSummary() {
+      try {
+        this.isLoadingAttendance = true
+
+        const response = await axios.get('http://localhost:3000/attendance/summary/')
+        const statusPercentages = response.data.statusPercentages
+
+        // Find the "present" percentage
+        const presentStatus = statusPercentages.find((status) => status.status === 'present')
+
+        if (presentStatus) {
+          this.attendanceRate = `${parseFloat(presentStatus.percentage).toFixed(1)}%`
+          this.metrics[1].value = this.attendanceRate
+        } else {
+          this.metrics[1].value = 'N/A'
+        }
+
+        console.log('Attendance summary loaded:', statusPercentages)
+      } catch (error) {
+        console.error('Failed to fetch attendance summary:', error)
+        // Keep default value if API fails
+        this.metrics[1].value = 'N/A'
+      } finally {
+        this.isLoadingAttendance = false
+      }
+    },
+    async fetchGradeScoresChart() {
+      try {
+        const response = await axios.get('http://localhost:3000/stats/grade-scores')
+        const gradeData = response.data.data || []
+        // Filter for Final Grade only, group by term_name
+        const terms = ['Q1', 'Q2', 'Q3', 'Q4']
+        const avgScores = terms.map((term) => {
+          const entry = gradeData.find((g) => g.term_name === term && g.task_type === 'Final Grade')
+          return entry ? Number(entry.average_score) : null
+        })
+        this.data = {
+          labels: terms,
+          datasets: [
+            {
+              label: 'Average Final Grade',
+              data: avgScores,
+              borderColor: 'rgb(75, 192, 192)',
+              backgroundColor: 'rgba(75, 192, 192, 0.08)',
+              tension: 0.4,
+              pointBackgroundColor: 'rgb(75, 192, 192)',
+              pointBorderColor: '#fff',
+              pointRadius: 6,
+              pointHoverRadius: 8,
+              fill: true,
+            },
+          ],
+          options: {
+            responsive: true,
+            plugins: {
+              legend: { display: false },
+              tooltip: { enabled: true },
+            },
+            scales: {
+              y: {
+                min: 60,
+                max: 100,
+                ticks: {
+                  stepSize: 5,
+                  callback: function (value) {
+                    return value + '%'
+                  },
+                },
+                grid: { color: '#e0e0e0' },
+              },
+              x: {
+                grid: { display: false },
+              },
+            },
+          },
+        }
+      } catch (error) {
+        console.error('Failed to fetch grade scores:', error)
+      }
+    },
     handleItemClick(student) {
       console.log('Student clicked:', student)
     },

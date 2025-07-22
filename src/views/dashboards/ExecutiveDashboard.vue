@@ -33,15 +33,6 @@
                 </v-chip>
               </template>
             </v-select>
-
-            <v-chip color="success" class="mr-3">
-              <v-icon class="mr-2">mdi-update</v-icon>
-              Last Updated: {{ lastUpdated }}
-            </v-chip>
-            <v-btn color="primary" @click="refreshData">
-              <v-icon class="mr-2">mdi-refresh</v-icon>
-              Refresh
-            </v-btn>
           </div>
         </div>
       </v-col>
@@ -212,157 +203,7 @@
     </v-row>
 
     <!-- Alert/Action Items -->
-    <v-row class="mb-6">
-      <v-col cols="12" md="6">
-        <v-card elevation="6" class="pa-4">
-          <v-card-title class="text-h5 text-error">
-            <v-icon class="mr-2">mdi-alert</v-icon>
-            Priority Alerts
-          </v-card-title>
-          <v-card-text>
-            <v-list>
-              <v-list-item v-for="alert in priorityAlerts" :key="alert.id">
-                <v-list-item-icon>
-                  <v-icon :color="alert.severity === 'high' ? 'error' : 'warning'">
-                    {{ alert.severity === 'high' ? 'mdi-alert-circle' : 'mdi-alert' }}
-                  </v-icon>
-                </v-list-item-icon>
-                <v-list-item-content>
-                  <v-list-item-title>{{ alert.title }}</v-list-item-title>
-                  <v-list-item-subtitle>{{ alert.description }}</v-list-item-subtitle>
-                </v-list-item-content>
-                <v-list-item-action>
-                  <v-btn small color="primary" @click="viewAlert(alert)">View</v-btn>
-                </v-list-item-action>
-              </v-list-item>
-            </v-list>
-          </v-card-text>
-        </v-card>
-      </v-col>
-
-      <v-col cols="12" md="6">
-        <v-card elevation="6" class="pa-4">
-          <v-card-title class="text-h5 text-success">
-            <v-icon class="mr-2">mdi-trophy</v-icon>
-            Recent Achievements
-          </v-card-title>
-          <v-card-text>
-            <v-timeline dense>
-              <v-timeline-item
-                v-for="achievement in recentAchievements"
-                :key="achievement.id"
-                color="success"
-                small
-              >
-                <v-card outlined>
-                  <v-card-title class="text-body-1">{{ achievement.title }}</v-card-title>
-                  <v-card-subtitle
-                    >{{ achievement.school }} - {{ achievement.date }}</v-card-subtitle
-                  >
-                  <v-card-text class="text-body-2">{{ achievement.description }}</v-card-text>
-                </v-card>
-              </v-timeline-item>
-            </v-timeline>
-          </v-card-text>
-        </v-card>
-      </v-col>
-    </v-row>
-
     <!-- Bottom Stats Row -->
-    <v-row>
-      <v-col cols="12" md="3">
-        <v-card color="blue-grey darken-2" dark class="pa-4">
-          <v-card-title>Staff Overview</v-card-title>
-          <v-card-text>
-            <div class="text-h4 mb-2">{{ staffStats.total }}</div>
-            <div class="text-body-2">Total Staff</div>
-            <v-divider class="my-3"></v-divider>
-            <div class="d-flex justify-space-between">
-              <span>Teachers:</span>
-              <span>{{ staffStats.teachers }}</span>
-            </div>
-            <div class="d-flex justify-space-between">
-              <span>Administrators:</span>
-              <span>{{ staffStats.administrators }}</span>
-            </div>
-            <div class="d-flex justify-space-between">
-              <span>Support Staff:</span>
-              <span>{{ staffStats.support }}</span>
-            </div>
-          </v-card-text>
-        </v-card>
-      </v-col>
-
-      <v-col cols="12" md="3">
-        <v-card color="teal darken-2" dark class="pa-4">
-          <v-card-title>Budget Overview</v-card-title>
-          <v-card-text>
-            <div class="text-h4 mb-2">${{ budgetStats.total }}M</div>
-            <div class="text-body-2">Total Budget</div>
-            <v-divider class="my-3"></v-divider>
-            <div class="d-flex justify-space-between">
-              <span>Spent:</span>
-              <span>${{ budgetStats.spent }}M</span>
-            </div>
-            <div class="d-flex justify-space-between">
-              <span>Remaining:</span>
-              <span>${{ budgetStats.remaining }}M</span>
-            </div>
-            <v-progress-linear
-              :value="(budgetStats.spent / budgetStats.total) * 100"
-              color="warning"
-              class="mt-2"
-            ></v-progress-linear>
-          </v-card-text>
-        </v-card>
-      </v-col>
-
-      <v-col cols="12" md="3">
-        <v-card color="purple darken-2" dark class="pa-4">
-          <v-card-title>Technology</v-card-title>
-          <v-card-text>
-            <div class="text-h4 mb-2">{{ techStats.devices }}</div>
-            <div class="text-body-2">Total Devices</div>
-            <v-divider class="my-3"></v-divider>
-            <div class="d-flex justify-space-between">
-              <span>Active:</span>
-              <span>{{ techStats.active }}</span>
-            </div>
-            <div class="d-flex justify-space-between">
-              <span>Maintenance:</span>
-              <span>{{ techStats.maintenance }}</span>
-            </div>
-            <div class="d-flex justify-space-between">
-              <span>WiFi Uptime:</span>
-              <span>{{ techStats.wifiUptime }}%</span>
-            </div>
-          </v-card-text>
-        </v-card>
-      </v-col>
-
-      <v-col cols="12" md="3">
-        <v-card color="orange darken-2" dark class="pa-4">
-          <v-card-title>Special Programs</v-card-title>
-          <v-card-text>
-            <div class="text-h4 mb-2">{{ specialPrograms.total }}</div>
-            <div class="text-body-2">Students Enrolled</div>
-            <v-divider class="my-3"></v-divider>
-            <div class="d-flex justify-space-between">
-              <span>IEP:</span>
-              <span>{{ specialPrograms.iep }}</span>
-            </div>
-            <div class="d-flex justify-space-between">
-              <span>504 Plans:</span>
-              <span>{{ specialPrograms.f504 }}</span>
-            </div>
-            <div class="d-flex justify-space-between">
-              <span>ELL:</span>
-              <span>{{ specialPrograms.ell }}</span>
-            </div>
-          </v-card-text>
-        </v-card>
-      </v-col>
-    </v-row>
   </v-container>
 </template>
 
@@ -528,14 +369,70 @@ const attendanceOptions = ref({
 })
 
 const demographicsData = ref({
-  labels: ['Hispanic/Latino', 'White', 'African American', 'Asian', 'Native American', 'Other'],
+  labels: [],
   datasets: [
     {
-      data: [45.2, 28.1, 12.4, 8.7, 2.1, 3.5],
-      backgroundColor: ['#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF', '#FF9F40'],
+      data: [],
+      backgroundColor: [
+        '#FF6384',
+        '#36A2EB',
+        '#FFCE56',
+        '#4BC0C0',
+        '#9966FF',
+        '#FF9F40',
+        '#BDBDBD',
+      ],
     },
   ],
 })
+
+const fetchDemographics = async () => {
+  try {
+    let schoolId =
+      selectedSchool.value && selectedSchool.value !== 'all'
+        ? selectedSchool.value.replace('school-', '')
+        : undefined
+    const params = schoolId ? { school: schoolId } : {}
+    const res = await axios.get('http://localhost:3000/stats/ethnicity', { params })
+    const ethData = res.data.data || []
+    demographicsData.value = {
+      labels: ethData.map((e: any) => e.ethnicity || 'Other'),
+      datasets: [
+        {
+          data: ethData.map((e: any) => Number(e.count)),
+          backgroundColor: [
+            '#FF6384',
+            '#36A2EB',
+            '#FFCE56',
+            '#4BC0C0',
+            '#9966FF',
+            '#FF9F40',
+            '#BDBDBD',
+          ],
+        },
+      ],
+    }
+  } catch (err) {
+    console.error('Failed to fetch ethnicity stats:', err)
+    demographicsData.value = {
+      labels: [],
+      datasets: [
+        {
+          data: [],
+          backgroundColor: [
+            '#FF6384',
+            '#36A2EB',
+            '#FFCE56',
+            '#4BC0C0',
+            '#9966FF',
+            '#FF9F40',
+            '#BDBDBD',
+          ],
+        },
+      ],
+    }
+  }
+}
 
 const gradeData = ref({
   labels: ['A', 'B', 'C', 'D', 'F'],
@@ -588,56 +485,30 @@ const schoolHeaders = ref([
   { title: 'Staff Count', key: 'staffCount', sortable: true },
 ])
 
-const schoolData = ref<SchoolData[]>([
-  {
-    schoolName: 'Lincoln Elementary',
-    enrollment: 485,
-    attendanceRate: 95.2,
-    proficiencyRate: 82.1,
-    behaviorIncidents: 3,
-    staffCount: 28,
-  },
-  {
-    schoolName: 'Roosevelt Middle School',
-    enrollment: 687,
-    attendanceRate: 91.8,
-    proficiencyRate: 76.4,
-    behaviorIncidents: 12,
-    staffCount: 42,
-  },
-  {
-    schoolName: 'Washington High School',
-    enrollment: 1247,
-    attendanceRate: 89.3,
-    proficiencyRate: 74.7,
-    behaviorIncidents: 28,
-    staffCount: 78,
-  },
-  {
-    schoolName: 'Jefferson Elementary',
-    enrollment: 421,
-    attendanceRate: 96.1,
-    proficiencyRate: 84.3,
-    behaviorIncidents: 2,
-    staffCount: 24,
-  },
-  {
-    schoolName: 'Madison Middle School',
-    enrollment: 623,
-    attendanceRate: 93.4,
-    proficiencyRate: 78.9,
-    behaviorIncidents: 8,
-    staffCount: 38,
-  },
-  {
-    schoolName: 'Adams High School',
-    enrollment: 1152,
-    attendanceRate: 88.7,
-    proficiencyRate: 72.1,
-    behaviorIncidents: 31,
-    staffCount: 71,
-  },
-])
+const schoolData = ref<SchoolData[]>([])
+
+const fetchSchoolPerformance = async () => {
+  try {
+    let schoolId =
+      selectedSchool.value && selectedSchool.value !== 'all'
+        ? selectedSchool.value.replace('school-', '')
+        : undefined
+    const params = schoolId ? { school: schoolId } : {}
+    const res = await axios.get('http://localhost:3000/stats/school-performance', { params })
+    const perfData = res.data.data || []
+    schoolData.value = perfData.map((s: any) => ({
+      schoolName: s.name,
+      enrollment: Number(s.total_students),
+      attendanceRate: Number(s.attendance_rate),
+      proficiencyRate: Number(s.average_current_grade),
+      behaviorIncidents: Number(s.behavior_incidents),
+      staffCount: Number(s.teacher_count),
+    }))
+  } catch (err) {
+    console.error('Failed to fetch school performance:', err)
+    schoolData.value = []
+  }
+}
 
 // Alerts and achievements
 const priorityAlerts = ref([
@@ -768,14 +639,8 @@ const getSchoolIcon = (schoolType: string): string => {
 const onSchoolChange = (schoolValue: string | null): void => {
   selectedSchool.value = schoolValue || 'all'
   lastUpdated.value = 'Just now'
-  console.log('Selected school:', selectedSchool.value)
-  // Here you would typically fetch school-specific data
-}
-
-const refreshData = (): void => {
-  lastUpdated.value = 'Just now'
-  // In a real app, this would fetch fresh data from the API
-  fetchSchools()
+  fetchDemographics()
+  fetchSchoolPerformance()
 }
 
 const viewAlert = (alert: any): void => {
@@ -784,9 +649,9 @@ const viewAlert = (alert: any): void => {
 }
 
 onMounted(() => {
-  // Initialize dashboard data
   fetchSchools()
-  refreshData()
+  fetchDemographics()
+  fetchSchoolPerformance()
 })
 </script>
 
