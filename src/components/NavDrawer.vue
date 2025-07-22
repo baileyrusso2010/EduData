@@ -169,6 +169,7 @@ const generalItems = [
 
 const dashboards = [
   { title: 'Executive Dashboard', to: '/dashboard', icon: 'mdi-view-dashboard' },
+  { title: 'Interventions', to: '/interventions', icon: 'mdi-account-alert' },
   { title: 'Attendance', to: '/students/attendance', icon: 'mdi-account-check-outline' },
 ]
 

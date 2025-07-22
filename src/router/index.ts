@@ -15,6 +15,7 @@ import BandEditor from '../views/assessments/BandEditor.vue'
 // Dashboard/meta views
 import HomePage from '../views/dashboards/HomePage.vue'
 import ExecutiveDashboard from '../views/dashboards/ExecutiveDashboard.vue'
+import Interventions from '../views/Interventions.vue'
 import Support from '../views/meta/Support.vue'
 import Updates from '../views/meta/Updates.vue'
 import PageNotFound from '../views/PageNotFound.vue'
@@ -22,6 +23,7 @@ import PageNotFound from '../views/PageNotFound.vue'
 const routes = [
   { path: '/', component: HomePage },
   { path: '/dashboard', component: ExecutiveDashboard },
+  { path: '/interventions', component: Interventions },
   // Student
   { path: '/students', component: StudentSearch },
   { path: '/students/:id', name: 'student-profile', component: StudentProfile, props: true },
